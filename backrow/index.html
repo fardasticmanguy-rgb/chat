@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Backrow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Cairo:wght@600;800&family=Rubik:wght@400;500;700;800&display=swap">
+<style>
+:root{
+  --bg:#1a1140;--panel:#241a55;--raise:#30236f;--ink:#fff4dc;--dim:#a99dd9;
+  --coral:#ff6b57;--coral-d:#b8392b;--butter:#ffd43b;--butter-d:#c99a0c;--mint:#4be3b0;--cardink:#2a1650;
+  --line:rgba(255,244,220,.13);
+  --display:"Bungee","Arial Black",Impact,system-ui,sans-serif;
+  --body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ar:"Cairo","Rubik",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+[hidden]{display:none!important}
+#root{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+input{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:11px 14px;width:100%;min-width:0;outline:none;font-size:16px}
+input:focus{border-color:var(--butter)}
+.btn{appearance:none;border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer;background:var(--raise);box-shadow:0 4px 0 rgba(0,0,0,.35);white-space:nowrap}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.btn.primary{background:var(--butter);color:var(--cardink);box-shadow:0 4px 0 var(--butter-d)}
+.btn.hot{background:var(--coral);color:var(--cardink);box-shadow:0 4px 0 var(--coral-d)}
+.btn.ghost{background:transparent;border:2px solid var(--line);box-shadow:none}
+.btn.small{padding:7px 11px;font-size:13px;border-radius:10px}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn:focus-visible,.chatitem:focus-visible{outline:3px solid var(--mint);outline-offset:2px}
+.ar{font-family:var(--ar);font-weight:700}
+.note{color:var(--dim);font-size:13px;margin:0}
+.note.warn{color:var(--coral)}
+.lock{min-height:100%;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px))}
+.lockcard{width:min(380px,100%);background:var(--panel);border-radius:20px;padding:24px 20px;display:flex;flex-direction:column;gap:12px}
+.logo{font-family:var(--display);font-size:40px;line-height:1;color:var(--butter);margin:0}
+.logo span{color:var(--coral)}
+label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:800}
+.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+.app{height:100%;display:grid;grid-template-columns:320px minmax(0,1fr)}
+.side{background:var(--panel);display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line)}
+.sidehead{display:flex;align-items:center;gap:8px;padding:14px 14px 10px;padding-top:max(14px,env(safe-area-inset-top,0px))}
+.sidehead .logo{font-size:22px}
+.me{font-size:13px;color:var(--dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.me b{color:var(--ink)}
+.newchat{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px}
+.newrow{display:flex;gap:8px}
+.chatlist{flex:1;overflow-y:auto;padding:4px 8px 12px;display:flex;flex-direction:column;gap:4px;min-height:0}
+.chatitem{appearance:none;border:0;background:transparent;text-align:left;border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;cursor:pointer;width:100%}
+.chatitem:hover{background:var(--raise)}
+.chatitem.on{background:var(--bg)}
+.ci-n{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-p{grid-column:1;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci-b{grid-row:1/3;grid-column:2;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.badge{background:var(--coral);color:var(--cardink);border-radius:999px;font-size:11px;font-weight:800;padding:1px 7px}
+.online{font-size:11px;color:var(--mint);font-weight:800}
+.main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.mainhead{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);padding-top:max(12px,env(safe-area-inset-top,0px))}
+.mh-t{flex:1;min-width:0}
+.mh-t b{display:block;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mh-t span{font-size:12px;color:var(--mint);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.back{display:none}
+.msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-height:0}
+.m{max-width:78%;display:flex;flex-direction:column;gap:2px;align-self:flex-start}
+.m.mine{align-self:flex-end;align-items:flex-end}
+.m .who{font-size:12px;font-weight:800}
+.m .bub{background:var(--panel);border-radius:16px 16px 16px 4px;padding:8px 12px;overflow-wrap:anywhere;white-space:pre-wrap}
+.m.mine .bub{background:var(--butter);color:var(--cardink);border-radius:16px 16px 4px 16px}
+.m .ts{font-size:10px;color:var(--dim)}
+.sys{align-self:center;font-size:12px;color:var(--dim);background:var(--panel);border-radius:999px;padding:3px 12px}
+.inv{align-self:center;background:var(--raise);border:2px solid var(--mint);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-items:center;text-align:center;max-width:320px}
+.inv b{font-family:var(--display);font-weight:400;font-size:18px;color:var(--mint)}
+.typing{font-size:12px;color:var(--dim);padding:0 16px 4px;min-height:18px}
+.compose{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;color:var(--dim)}
+.empty h2{font-family:var(--display);font-weight:400;color:var(--ink);font-size:22px;margin:0}
+.empty p{margin:0;max-width:42ch}
+.status{font-size:11px;padding:0 14px 8px}
+.status.ok{color:var(--mint)}
+.status.bad{color:var(--coral)}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .app.inchat .side{display:none}
+  .app:not(.inchat) .main{display:none}
+  .back{display:inline-block}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const PASS="1936",TOP="backrow1",BROKERS=(()=>{const q=new URLSearchParams(location.search).get("mqtt");return q?q.split(","):["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt"]})();
+const GAME="https://fardasticmanguy-rgb.github.io/cool-game/";
+const COLS=["#ff6b57","#ffd43b","#4be3b0","#6fb6ff","#ff8ad8","#c3a6ff"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clean=(s,n)=>String(s??"").replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩]/g,"").trim().slice(0,n);
+const rid=()=>Array.from(crypto.getRandomValues(new Uint8Array(8)),b=>b.toString(16).padStart(2,"0")).join("");
+const hash=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h};
+const te=new TextEncoder(),td=new TextDecoder();
+const b64=u=>{let s="";const a=new Uint8Array(u);for(let i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s)};
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const hhmm=t=>{const d=new Date(t);return d.getHours()+":"+String(d.getMinutes()).padStart(2,"0")};
+
+let me=null,clients=[],up=0,chats=new Map(),cur=null,seen=new Set(),lastType=0,netMsg="Connecting…";
+
+async function deriveRoom(code){
+  const norm=code.trim().toLowerCase();
+  const h=new Uint8Array(await crypto.subtle.digest("SHA-256",te.encode("backrow-room|"+norm)));
+  const topic=TOP+"/"+Array.from(h.slice(0,12),b=>b.toString(16).padStart(2,"0")).join("");
+  const base=await crypto.subtle.importKey("raw",te.encode(norm),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:te.encode("backrow-salt-v1|"+norm.length),iterations:150000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+  return{topic,key};
+}
+async function seal(key,obj){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,te.encode(JSON.stringify(obj)));
+  return JSON.stringify({v:1,iv:b64(iv),ct:b64(ct)});
+}
+async function unseal(key,txt){
+  try{const m=JSON.parse(txt);const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:ub64(m.iv)},key,ub64(m.ct));return JSON.parse(td.decode(pt))}catch(e){return null}
+}
+
+function loadScript(src){return new Promise(r=>{const s=document.createElement("script");s.src=src;s.onload=()=>r(true);s.onerror=()=>r(false);document.head.append(s)})}
+async function connect(){
+  for(const src of["https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js","https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"]){if(window.mqtt)break;await loadScript(src)}
+  if(!window.mqtt){netMsg="Couldn't load. Check your internet and reload.";renderSide();return}
+  for(const url of BROKERS){
+    let c;try{c=window.mqtt.connect(url,{clientId:"br_"+rid(),clean:true,keepalive:25,reconnectPeriod:2500,connectTimeout:9000,protocolVersion:4})}catch(e){continue}
+    c.__up=false;
+    c.on("connect",()=>{c.__up=true;up=clients.filter(x=>x.__up).length;for(const ch of chats.values())c.subscribe(ch.topic,{qos:0});netMsg="";renderSide();for(const ch of chats.values())send(ch,{k:"here",hello:1})});
+    c.on("close",()=>{c.__up=false;up=clients.filter(x=>x.__up).length;if(!up)netMsg="Reconnecting…";renderSide()});
+    c.on("error",()=>{});
+    c.on("message",(topic,buf)=>onRaw(topic,buf.toString()));
+    clients.push(c);
+  }
+  setTimeout(()=>{if(!up){netMsg="Can't reach the chat server. The school Wi-Fi might block it.";renderSide()}},10000);
+}
+async function send(ch,obj){
+  const body={...obj,from:me.id,name:me.name,ts:Date.now(),id:obj.id||rid()};
+  seen.add(ch.topic+body.id);
+  const txt=await seal(ch.key,body);
+  for(const c of clients)if(c.__up)try{c.publish(ch.topic,txt,{qos:0})}catch(e){}
+  return body;
+}
+async function onRaw(topic,txt){
+  let ch=null;for(const x of chats.values())if(x.topic===topic){ch=x;break}
+  if(!ch)return;
+  const m=await unseal(ch.key,txt);
+  if(!m||typeof m!=="object"||typeof m.id!=="string"||typeof m.from!=="string"||m.from===me.id)return;
+  if(seen.has(topic+m.id))return;seen.add(topic+m.id);
+  const name=clean(m.name,20)||"Someone";
+  const known=ch.members.has(m.from);
+  if(m.k==="bye"){if(known){ch.members.delete(m.from);sys(ch,`${name} left`)}renderAll();return}
+  ch.members.set(m.from,{name,at:Date.now()});
+  if(!known)sys(ch,`${name} is here`);
+  if(m.hello&&!known)send(ch,{k:"here"});
+  if(m.k==="msg"){const text=clean(m.text,2000);if(text){push(ch,{t:"msg",from:m.from,name,text,ts:Date.now()});ch.typing.delete(m.from)}}
+  else if(m.k==="typing"){ch.typing.set(m.from,{name,at:Date.now()})}
+  else if(m.k==="invite"){const code=String(m.play||"").replace(/[^0-9]/g,"").slice(0,4);if(code)push(ch,{t:"invite",from:m.from,name,code,mode:String(m.mode||"cards").replace(/[^a-z]/g,"").slice(0,10),ts:Date.now()})}
+  renderAll();
+}
+function push(ch,e){ch.msgs.push(e);if(ch.msgs.length>400)ch.msgs.shift();if(cur!==ch.code||document.hidden)ch.unread++}
+function sys(ch,text){ch.msgs.push({t:"sys",text,ts:Date.now()})}
+
+async function joinChat(code,label){
+  code=clean(code,64);
+  if(code.length<4)return"Codes need at least 4 characters. Longer is more private.";
+  const norm=code.toLowerCase();
+  if(chats.has(norm)){openChat(norm);return""}
+  const r=await deriveRoom(code);
+  const ch={code:norm,label:clean(label,30)||"Chat "+(chats.size+1),topic:r.topic,key:r.key,msgs:[],members:new Map(),typing:new Map(),unread:0};
+  chats.set(norm,ch);
+  sys(ch,"Only people who typed the same code can see this chat. Nothing is saved.");
+  for(const c of clients)if(c.__up)c.subscribe(ch.topic,{qos:0});
+  send(ch,{k:"here",hello:1});
+  openChat(norm);
+  return"";
+}
+function leaveChat(code){
+  const ch=chats.get(code);if(!ch)return;
+  send(ch,{k:"bye"});
+  for(const c of clients)if(c.__up)c.unsubscribe(ch.topic);
+  chats.delete(code);if(cur===code)cur=null;renderAll();
+}
+function openChat(code){cur=code;const ch=chats.get(code);if(ch)ch.unread=0;renderAll();setTimeout(()=>{const i=$("#msgin");if(i&&window.innerWidth>760)i.focus()},30)}
+async function sendMsg(){
+  const i=$("#msgin"),ch=chats.get(cur);if(!i||!ch)return;
+  const text=clean(i.value,2000);if(!text)return;i.value="";
+  const b=await send(ch,{k:"msg",text});
+  ch.msgs.push({t:"msg",from:me.id,name:me.name,text,ts:b.ts});renderAll();
+}
+async function sendInvite(){
+  const ch=chats.get(cur);if(!ch)return;
+  const code=String(10+Math.floor(Math.random()*90));
+  await send(ch,{k:"invite",play:code,mode:"cards"});
+  ch.msgs.push({t:"invite",from:me.id,name:me.name,code,mode:"cards",ts:Date.now(),host:1});renderAll();
+}
+function playLink(code,mode,host){return `${GAME}?play=${encodeURIComponent(code)}&mode=${encodeURIComponent(mode||"cards")}&name=${encodeURIComponent(me.name)}${host?"&h=1":""}`}
+
+function renderLock(err){
+  $("#root").innerHTML=`<div class="lock"><form class="lockcard" id="lockf" autocomplete="off">
+    <h1 class="logo">BACK<span>ROW</span></h1>
+    <p class="note">Private chat for the back row. Nothing is saved: close the tab and it's gone.</p>
+    <p class="note ar" dir="rtl" lang="ar">شات سري. مفيش حاجة بتتحفظ: اقفل الصفحة وكله يتمسح.</p>
+    <label for="un">Username</label><input id="un" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="What should people call you?">
+    <label for="pw">Password</label><input id="pw" type="password" inputmode="numeric" autocomplete="off" placeholder="••••">
+    <button class="btn primary" type="submit">Enter</button>
+    <p class="note${err?" warn":""}" id="lockmsg">${err?esc(err):""}</p>
+  </form></div>`;
+  $("#un").focus();
+  $("#lockf").addEventListener("submit",e=>{
+    e.preventDefault();
+    const name=clean($("#un").value,20),pw=$("#pw").value.trim();
+    const card=$(".lockcard");
+    if(!name){$("#lockmsg").textContent="Type a username.";$("#lockmsg").className="note warn";card.classList.remove("shake");void card.offsetWidth;card.classList.add("shake");return}
+    if(pw!==PASS){$("#pw").value="";$("#lockmsg").textContent="Wrong password.";$("#lockmsg").className="note warn";card.classList.remove("shake");void card.offsetWidth;card.classList.add("shake");return}
+    me={id:rid(),name};
+    renderApp();connect();
+  });
+}
+function renderApp(){
+  $("#root").innerHTML=`<div class="app" id="app"><aside class="side">
+    <div class="sidehead"><h1 class="logo">BACK<span>ROW</span></h1><span class="me">as <b>${esc(me.name)}</b></span><button class="btn small hot" id="lockbtn" title="Lock and wipe everything">🔒 Lock</button></div>
+    <div id="status" class="status"></div>
+    <form class="newchat" id="newf" autocomplete="off">
+      <label for="ncode">Join or start a chat</label>
+      <input id="ncode" type="password" maxlength="64" autocomplete="off" placeholder="Secret code you agreed on">
+      <div class="newrow"><input id="nlabel" maxlength="30" autocomplete="off" placeholder="Name it (only you see this)"><button class="btn primary" type="submit">Join</button></div>
+      <p class="note" id="newmsg"></p>
+    </form>
+    <div class="chatlist" id="list"></div>
+  </aside><section class="main" id="main"></section></div>`;
+  $("#lockbtn").addEventListener("click",lockAll);
+  $("#newf").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const err=await joinChat($("#ncode").value,$("#nlabel").value);
+    const m=$("#newmsg");if(!m)return;
+    if(err){m.textContent=err;m.className="note warn"}else{$("#ncode").value="";$("#nlabel").value="";m.textContent="";m.className="note"}
+  });
+  renderAll();
+}
+function renderSide(){
+  const st=$("#status");if(st){st.textContent=netMsg||(up?`🟢 Connected · end-to-end scrambled with your chat code`:"");st.className="status "+(netMsg?"bad":"ok")}
+  const l=$("#list");if(!l)return;
+  if(!chats.size){l.innerHTML=`<p class="note" style="padding:8px">No chats yet. Whisper a code to your friends and all type it above.</p>`;return}
+  l.innerHTML=[...chats.values()].map(ch=>{
+    const last=[...ch.msgs].reverse().find(m=>m.t!=="sys");
+    const prev=last?(last.t==="invite"?`🎮 ${last.name} invited you to play`:`${last.from===me.id?"You":last.name}: ${last.text}`):"No messages yet";
+    const on=liveMembers(ch).length;
+    return `<button class="chatitem${cur===ch.code?" on":""}" data-code="${esc(ch.code)}"><span class="ci-n">${esc(ch.label)}</span><span class="ci-p">${esc(prev)}</span><span class="ci-b">${ch.unread?`<span class="badge">${ch.unread}</span>`:""}<span class="online">${on?`● ${on+1}`:""}</span></span></button>`;
+  }).join("");
+  l.querySelectorAll(".chatitem").forEach(b=>b.addEventListener("click",()=>openChat(b.dataset.code)));
+}
+function liveMembers(ch){const now=Date.now();for(const [id,m] of ch.members)if(now-m.at>30000)ch.members.delete(id);return[...ch.members.values()]}
+function renderMain(){
+  const main=$("#main"),app=$("#app");if(!main)return;
+  const ch=chats.get(cur);
+  app.classList.toggle("inchat",!!ch);
+  if(!ch){
+    main.innerHTML=`<div class="empty"><h2>🤫 How it works</h2>
+      <p>Agree on a secret code with your friends, in person. Everyone who types the same code is in the same chat. Just 2 of you = private messages. More = a group chat.</p>
+      <p class="ar" dir="rtl" lang="ar">اتفقوا على كود سري مع بعض. كل اللي يكتب نفس الكود يبقى في نفس الشات. اتنين بس = رسايل خاصة. أكتر = جروب.</p>
+      <p>Nobody can find a chat without its code. Nothing is saved anywhere.</p></div>`;
+    return;
+  }
+  const mem=liveMembers(ch).map(m=>m.name);
+  const box=$("#msgs"),stick=!box||box.scrollHeight-box.scrollTop-box.clientHeight<60;
+  const keep=$("#msgin")?$("#msgin").value:"",focused=document.activeElement&&document.activeElement.id==="msgin";
+  if(!main.dataset.chat||main.dataset.chat!==ch.code){
+    main.dataset.chat=ch.code;
+    main.innerHTML=`<div class="mainhead"><button class="btn small ghost back" id="backbtn">←</button><div class="mh-t" id="mht"></div><button class="btn small" id="playbtn" title="Start a Crashpot game with this chat">🎮 Play</button><button class="btn small ghost" id="leavebtn">Leave</button></div><div class="msgs" id="msgs"></div><div class="typing" id="typing"></div><form class="compose" id="compf" autocomplete="off"><input id="msgin" maxlength="2000" autocomplete="off" placeholder="Message"><button class="btn primary" type="submit">Send</button></form>`;
+    $("#backbtn").addEventListener("click",()=>{cur=null;renderAll()});
+    $("#leavebtn").addEventListener("click",()=>leaveChat(ch.code));
+    $("#playbtn").addEventListener("click",sendInvite);
+    $("#compf").addEventListener("submit",e=>{e.preventDefault();sendMsg()});
+    $("#msgin").addEventListener("input",()=>{const now=Date.now();if(now-lastType>2500){lastType=now;send(ch,{k:"typing"})}});
+  }
+  $("#mht").innerHTML=`<b>${esc(ch.label)}</b><span>${mem.length?`● You, ${esc(mem.join(", "))}`:"Only you so far. Tell your friends the code."}</span>`;
+  $("#msgs").innerHTML=ch.msgs.map(m=>{
+    if(m.t==="sys")return `<div class="sys">${esc(m.text)}</div>`;
+    if(m.t==="invite")return `<div class="inv"><span>🎮 <b>${m.from===me.id?"You":esc(m.name)}</b> started a Crashpot game</span><b>Lobby ${esc(m.code)}</b><a class="btn primary" href="${esc(playLink(m.code,m.mode,m.host))}" target="_blank" rel="noopener">Join game</a></div>`;
+    const mine=m.from===me.id;
+    return `<div class="m${mine?" mine":""}">${mine?"":`<span class="who" style="color:${COLS[hash(m.from)%COLS.length]}">${esc(m.name)}</span>`}<div class="bub" dir="auto">${esc(m.text)}</div><span class="ts">${hhmm(m.ts)}</span></div>`;
+  }).join("");
+  const now=Date.now(),ty=[...ch.typing.values()].filter(t=>now-t.at<4000).map(t=>t.name);
+  $("#typing").textContent=ty.length?`${ty.join(", ")} ${ty.length>1?"are":"is"} typing…`:"";
+  const b2=$("#msgs");if(stick)b2.scrollTop=b2.scrollHeight;
+  const i=$("#msgin");if(i&&i.value!==keep)i.value=keep;if(focused&&i)i.focus();
+}
+function renderAll(){
+  const ch=chats.get(cur);if(ch&&!document.hidden)ch.unread=0;
+  renderSide();renderMain();
+  const total=[...chats.values()].reduce((a,c)=>a+c.unread,0);
+  document.title=total?`(${total}) Backrow`:"Backrow";
+}
+function lockAll(){
+  for(const ch of chats.values())send(ch,{k:"bye"});
+  setTimeout(()=>{try{for(const c of clients)c.end(true)}catch(e){}location.replace(location.pathname+location.search)},250);
+}
+setInterval(()=>{if(!me)return;for(const ch of chats.values())send(ch,{k:"here"});renderAll()},10000);
+setInterval(()=>{if(me&&cur)renderMain()},2000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&me)renderAll()});
+window.addEventListener("pagehide",()=>{if(!me)return;for(const ch of chats.values())send(ch,{k:"bye"})});
+renderLock();
+</script>
+</body>
+</html>
