@@ -1,4 +1,4 @@
-# Margin
+# Chat
 
 Quiet notes with your class. A tiny chat room that looks like a plain document.
 
