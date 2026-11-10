@@ -5,8 +5,8 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 ## How it works
 
 1. Open the page and type your name.
-2. Tap **Start a room**. You're the admin. Share the invite link or the 12-letter code.
-3. Friends open the link (or type the code) and they're in.
+2. Type a code (like `pizza` or `42`) or leave it empty for a random 3-digit one, then tap **Start a room**. You're the admin.
+3. Friends type the code under **Join** (or open the invite link) and they're in.
 
 ## Features
 
@@ -24,7 +24,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 ## Privacy
 
 - Messages are encrypted in your browser with the room code before they leave. The relay server only sees scrambled text.
-- Anyone who has the code can read and write. Only share it with people you trust.
+- Anyone who knows the code can read and write. Short codes are easy to guess, so pick one only your friends would know.
 - Removing someone hides their notes and blocks their input, but a determined person could clear their browser and come back. If that happens, start a new room.
 - History lives in each person's browser. New people get recent notes from whoever is online, plus the last 40 notes kept on the relay.
 

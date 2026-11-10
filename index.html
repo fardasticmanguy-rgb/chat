@@ -139,9 +139,10 @@ body.dark .msg .hd{padding:0 4px}
       <input id="nm" class="in" maxlength="16" autocomplete="off" placeholder="What should people call you?">
       <div id="cols" class="cols"></div>
       <h3>New room</h3>
+      <input id="nc" class="in" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pick a code like pizza or 42 (or leave empty)">
       <button class="btn pri wide" data-a="create">Start a room (you'll be the admin)</button>
       <h3>Join a room</h3>
-      <div class="row"><input id="jc" class="in" placeholder="XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn" data-a="join">Join</button></div>
+      <div class="row"><input id="jc" class="in" placeholder="Room code" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn" data-a="join">Join</button></div>
       <p id="hnote" class="note"></p>
       <div id="roomsbox" hidden><h3>Your rooms</h3><div id="rooms" class="rooms"></div></div>
     </div>
@@ -175,7 +176,6 @@ body.dark .msg .hd{padding:0 4px}
 <script>
 const GAME_URL="https://fardasticmanguy-rgb.github.io/cool-game/";
 const BROKERS=(()=>{const q=new URLSearchParams(location.search).get("mqtt");return q?q.split(","):["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt"]})();
-const AB="23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 const NC=8;
 const MODES={cards:{e:"🃏",n:"Crash Cards"},brawl:{e:"⚔️",n:"Brawl"},hide:{e:"🙈",n:"Hide & Seek"},party:{e:"🎉",n:"Party"},single:{e:"🎯",n:"One game"}};
 const TITLES=["Notes","Untitled document","Homework","Study guide","Quiz review"];
@@ -195,9 +195,7 @@ const toUrl=s=>s.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const bytesU=s=>Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
 const sha=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",typeof s==="string"?enc.encode(s):s));
 const hex=u=>[...u].map(b=>b.toString(16).padStart(2,"0")).join("");
-const b32=(u,n)=>{let bits=0,val=0,out="";for(const b of u){val=((val<<8)|b)&0xffff;bits+=8;while(bits>=5&&out.length<n){out+=AB[(val>>>(bits-5))&31];bits-=5}if(out.length>=n)break}return out};
-const fmtCode=c=>c.match(/.{4}/g).join("-");
-const normCode=s=>{const c=[...String(s||"").toUpperCase()].filter(ch=>AB.includes(ch)).join("");return c.length===12?c:null};
+const normCode=s=>{const c=String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");return c.length>=2&&c.length<=20?c:null};
 const tm=ts=>new Date(ts).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 const dayLabel=ts=>{const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return"Today";n.setDate(n.getDate()-1);if(d.toDateString()===n.toDateString())return"Yesterday";return d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})};
 
@@ -210,20 +208,20 @@ const DEF={theme:"doc",notif:false,peek:false,sound:false,buzz:false,autohide:fa
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
 
-let pendingAdm=null,R=null,clients=[],up=0,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
+let probe=null,pendingAdm=null,R=null,clients=[],up=0,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
 const seen=new Map();
 
-async function deriveKey(secret,fp){
-  const base=await crypto.subtle.importKey("raw",enc.encode("margin:"+secret),"PBKDF2",false,["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt:enc.encode("margin-v1:"+fp),iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+async function deriveKey(code){
+  const base=await crypto.subtle.importKey("raw",enc.encode("chat:"+code),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:enc.encode("chat-v1"),iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
 }
 async function seal(key,s){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(s));return b64(iv)+"."+b64(ct)}
 async function unseal(key,t){try{const[a,b]=t.split(".");if(!b)return null;return dec.decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(a)},key,unb64(b)))}catch(e){return null}}
 
 async function makeRoom(code){
-  const secret=code.slice(0,8),fp=code.slice(8);
-  const tid=hex(await sha("margin-topic:"+secret+fp)).slice(0,24);
-  const r={code,fp,tid,key:await deriveKey(secret,fp),topic:"margin1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
+  const tid=hex(await sha("chat-topic:"+code)).slice(0,24);
+  const r={code,tid,key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
+  const pin=ls.get("mg.pin."+tid,null);if(pin)try{r.pubKey=await crypto.subtle.importKey("raw",unb64(pin),EC,false,["verify"]);r.pub=pin}catch(e){}
   const jwk=ls.get("mg.a."+tid,null);if(jwk)await setAdmin(r,jwk);
   const sm=ls.get("mg.m."+tid,null);if(sm)await acceptMeta(r,sm.ms,sm.sig);
   for(const m of ls.get("mg.h."+tid,[])){const n=normMsg(m);if(n){n.ok=!!m.ok;r.msgs.set(n.id,n)}}
@@ -232,10 +230,10 @@ async function makeRoom(code){
 async function setAdmin(r,jwk){
   try{
     const raw=new Uint8Array(65);raw[0]=4;raw.set(bytesU(jwk.x),1);raw.set(bytesU(jwk.y),33);
-    if(b32(await sha(raw),4)!==r.fp)return false;
+    const pub=b64(raw);if(r.pub&&r.pub!==pub)return false;
     const k={kty:"EC",crv:"P-256",x:jwk.x,y:jwk.y,d:jwk.d};
     r.signKey=await crypto.subtle.importKey("jwk",k,EC,false,["sign"]);
-    if(!r.pubKey){r.pubKey=await crypto.subtle.importKey("raw",raw,EC,false,["verify"]);r.pub=b64(raw)}
+    if(!r.pubKey){r.pubKey=await crypto.subtle.importKey("raw",raw,EC,false,["verify"]);r.pub=pub;ls.set("mg.pin."+r.tid,pub)}
     r.adm=k;ls.set("mg.a."+r.tid,k);return true;
   }catch(e){return false}
 }
@@ -249,14 +247,12 @@ async function acceptMeta(r,ms,sig){
   let m;try{m=JSON.parse(ms)}catch(e){return false}
   if(!m||typeof m.pub!=="string"||typeof m.v!=="number"||m.v<=r.meta.v)return false;
   try{
-    if(!r.pubKey){
-      const raw=unb64(m.pub);
-      if(raw.length!==65||b32(await sha(raw),4)!==r.fp)return false;
-      const k=await crypto.subtle.importKey("raw",raw,EC,false,["verify"]);
-      if(!r.pubKey){r.pubKey=k;r.pub=m.pub}
-    }
+    let k=r.pubKey;
+    if(!k){const raw=unb64(m.pub);if(raw.length!==65)return false;k=await crypto.subtle.importKey("raw",raw,EC,false,["verify"])}
+    else if(m.pub!==r.pub)return false;
+    if(!await crypto.subtle.verify(SG,k,unb64(sig),enc.encode(ms)))return false;
+    if(!r.pubKey){r.pubKey=k;r.pub=m.pub;ls.set("mg.pin."+r.tid,m.pub)}
     if(m.pub!==r.pub)return false;
-    if(!await crypto.subtle.verify(SG,r.pubKey,unb64(sig),enc.encode(ms)))return false;
   }catch(e){return false}
   if(m.v<=r.meta.v)return false;
   r.meta=normMeta(m);r.metaRaw={ms,sig};ls.set("mg.m."+r.tid,r.metaRaw);
@@ -340,8 +336,10 @@ async function pub(r,obj,sub,retain){
   for(const c of clients)if(c.__up)try{c.publish(r.topic+(sub||""),txt,{qos:0,retain:!!retain})}catch(e){}
 }
 async function onRaw(topic,txt){
+  if(seen.has(txt))return;
+  if(probe&&topics(probe.r).includes(topic)){seen.set(txt,Date.now());probe.hit();return}
   const r=R;
-  if(!r||!topics(r).includes(topic)||txt.length>200000||seen.has(txt))return;
+  if(!r||!topics(r).includes(topic)||txt.length>200000)return;
   seen.set(txt,Date.now());
   if(seen.size>3000){const cut=Date.now()-120000;for(const[k,t]of seen)if(t<cut)seen.delete(k)}
   const s=await unseal(r.key,txt);
@@ -384,8 +382,8 @@ function remember(r){
 
 async function enterRoom(code,admJwk){
   code=normCode(code);
-  if(!code){hnote("That code doesn't look right. It has 12 letters and numbers.");return}
-  if(!me.name){hnote("Pick a name first.");$("#nm").focus();$("#jc").value=fmtCode(code);return}
+  if(!code){hnote("That code doesn't look right. Codes are 2 to 20 letters or numbers.");return}
+  if(!me.name){hnote("Pick a name first.");$("#nm").focus();$("#jc").value=code;return}
   if(busy)return;busy=true;hnote("");
   try{
     const r=await makeRoom(code);
@@ -394,18 +392,39 @@ async function enterRoom(code,admJwk){
     openRoom(r);
   }finally{busy=false}
 }
+async function waitUp(){for(let i=0;i<40&&!up;i++)await new Promise(r=>setTimeout(r,200));return up>0}
+function taken(r){
+  return new Promise(res=>{
+    let done=false;
+    const fin=v=>{if(done)return;done=true;probe=null;for(const c of clients)if(c.__up)try{c.unsubscribe(topics(r))}catch(e){}res(v)};
+    probe={r,hit:()=>fin(true)};
+    for(const c of clients)if(c.__up)c.subscribe(topics(r),{qos:0});
+    setTimeout(()=>pub(r,{t:"h?",rq:rid(8),since:0,u:me.id}),300);
+    setTimeout(()=>fin(false),2500);
+  });
+}
 async function createRoom(){
   if(!me.name){hnote("Pick a name first.");$("#nm").focus();return}
-  if(busy)return;busy=true;
+  const typed=$("#nc").value.trim(),want=typed?normCode(typed):null;
+  if(typed&&!want){hnote("Codes are 2 to 20 letters or numbers.");return}
+  if(busy)return;busy=true;hnote("Checking the code…");
   try{
-    const kp=await crypto.subtle.generateKey(EC,true,["sign","verify"]);
-    const raw=new Uint8Array(await crypto.subtle.exportKey("raw",kp.publicKey));
-    const jwk=await crypto.subtle.exportKey("jwk",kp.privateKey);
-    const code=b32(crypto.getRandomValues(new Uint8Array(8)),8)+b32(await sha(raw),4);
-    const r=await makeRoom(code);
-    await setAdmin(r,jwk);
+    if(!await waitUp()){hnote("Can't connect right now. Check your internet.");return}
+    let r=null;
+    for(let i=0;i<8&&!r;i++){
+      const t=await makeRoom(want||String(100+Math.floor(Math.random()*900)));
+      if(t.signKey){r=t;break}
+      if(await taken(t)){if(want){hnote("Someone already uses “"+t.code+"”. Pick another, or tap Join to join it.");$("#jc").value=t.code;return}continue}
+      r=t;
+    }
+    if(!r){hnote("Couldn't find a free code. Try again.");return}
+    if(!r.signKey){
+      const kp=await crypto.subtle.generateKey(EC,true,["sign","verify"]);
+      await setAdmin(r,await crypto.subtle.exportKey("jwk",kp.privateKey));
+    }
+    hnote("");$("#nc").value="";
     openRoom(r);
-    await setMeta({name:me.name+"'s room"});
+    if(!r.metaRaw)await setMeta({name:me.name+"'s room"});
     openSheet("invite");
   }finally{busy=false}
 }
@@ -439,7 +458,7 @@ function showHome(){
   $("#nm").value=me.name;renderCols();
   const list=ls.get("mg.rooms",[]);
   $("#roomsbox").hidden=!list.length;
-  $("#rooms").innerHTML=list.map(x=>`<button data-a="room" data-code="${esc(x.code)}"><span>${esc(x.name)}</span><small>${esc(fmtCode(x.code))}</small></button>`).join("");
+  $("#rooms").innerHTML=list.map(x=>`<button data-a="room" data-code="${esc(x.code)}"><span>${esc(x.name)}</span><small>${esc(x.code)}</small></button>`).join("");
 }
 function renderCols(){$("#cols").innerHTML=[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}
 function hnote(t){$("#hnote").textContent=t}
@@ -457,7 +476,7 @@ function renderHead(){
 function renderLog(stick){
   const r=R;if(!r)return;
   const log=$("#log"),list=shown(r),byId=new Map(list.map(m=>[m.id,m]));
-  if(!list.length){log.innerHTML=`<div class="empty">No notes yet.<br>Share the code <b>${esc(fmtCode(r.code))}</b> so people can join.</div>`;return}
+  if(!list.length){log.innerHTML=`<div class="empty">No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.</div>`;return}
   const nearB=stick||atBottom(),mention=new RegExp("@"+me.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
   let h="",prev=null,day="";
   for(const m of list){
@@ -574,7 +593,7 @@ function renderSheet(){
   if(sheetKind==="game"){
     c.innerHTML=`<h2>Wanna play?</h2><p class="hint">Pick a game. Everyone here gets an invite, and the game opens in a new tab.</p><div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
   }else if(sheetKind==="invite"){
-    c.innerHTML=`<h2>Invite people</h2><p class="hint">Anyone with this code can read and write in this room. Only share it with people you trust.</p><div class="code">${esc(fmtCode(r.code))}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
+    c.innerHTML=`<h2>Invite people</h2><p class="hint">Anyone who knows this code can get in, so pick something only your friends would guess.</p><div class="code">${esc(r.code)}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
   }else if(sheetKind==="people"){
     const ppl=[[me.id,{n:me.name,c:me.col}],...r.online];
     const bans=Object.entries(r.meta.bans);
@@ -615,7 +634,7 @@ function renderSheet(){
 function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),1600)}
 async function copy(t,msg){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();try{document.execCommand("copy")}catch(_){}a.remove()}toast(msg||"Copied")}
 const baseUrl=()=>location.origin+location.pathname;
-const inviteUrl=r=>baseUrl()+"#j="+fmtCode(r.code);
+const inviteUrl=r=>baseUrl()+"#j="+r.code;
 function applyTheme(){document.body.classList.toggle("dark",S.theme==="dark");document.querySelector('meta[name="theme-color"]').content=S.theme==="dark"?"#171a21":"#ffffff";setFav()}
 function setName(v){const n=clean(v,16);if(!n||n===me.name)return;me.name=n;saveMe();if(R){sendP(R,true);paint()}}
 
@@ -691,7 +710,7 @@ setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")rende
   if(j)try{history.replaceState(null,"",baseUrl()+location.search)}catch(e){}
   let admJwk=null;if(adm)try{admJwk=JSON.parse(atob(adm.replace(/-/g,"+").replace(/_/g,"/")))}catch(e){}
   showHome();
-  if(j)$("#jc").value=normCode(j)?fmtCode(normCode(j)):j;
+  if(j)$("#jc").value=normCode(j)||j;
   const target=j||ls.get("mg.last",null);
   if(target&&me.name)await enterRoom(target,admJwk);
   else if(j){hnote("Pick a name, then tap Join.");$("#nm").focus();pendingAdm=admJwk}
