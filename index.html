@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Notes</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link id="fav" rel="icon" href="icon.svg">
+<style>
+:root{--bg:#f1f3f4;--page:#fff;--ink:#202124;--sub:#5f6368;--line:#e0e0e0;--soft:#f1f3f4;--acc:#1a62c9;--mine:#eef3fd;--bad:#c5221f;--c0:#c5221f;--c1:#1a62c9;--c2:#137333;--c3:#b05a00;--c4:#8430ce;--c5:#b80672;--c6:#00796b;--c7:#5f6368;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color-scheme:light}
+body.dark{--bg:#0f1115;--page:#171a21;--ink:#e8eaed;--sub:#9aa0a6;--line:#2a2e37;--soft:#222630;--acc:#8ab4f8;--mine:#1e2a3e;--bad:#f28b82;--c0:#f28b82;--c1:#8ab4f8;--c2:#81c995;--c3:#fcad70;--c4:#c58af9;--c5:#ff8bcb;--c6:#78d9ec;--c7:#bdc1c6;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;overflow:hidden}
+[hidden]{display:none!important}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.scr{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
+.wrap{width:100%;max-width:760px;height:100%;display:flex;flex-direction:column;background:var(--page);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+#home .wrap{overflow:auto;padding:28px 20px 40px}
+h1{font-size:26px;font-weight:600;margin:0 0 4px}
+h3{font-size:13px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin:22px 0 8px}
+.lead{color:var(--sub);margin:0 0 20px}
+label.f{display:block;font-size:13px;color:var(--sub);margin:14px 0 6px}
+.in{width:100%;border:1px solid var(--line);background:var(--page);border-radius:8px;padding:10px 12px;outline:none}
+.in:focus{border-color:var(--acc)}
+.row{display:flex;gap:8px;align-items:center}
+.row .in{flex:1;min-width:0}
+.btn{border:1px solid var(--line);background:var(--page);border-radius:8px;padding:10px 14px;white-space:nowrap}
+.btn:hover{background:var(--soft)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--page);font-weight:600}
+.btn.bad{color:var(--bad)}
+.btn.wide{width:100%;margin-top:10px}
+.cols{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
+.cols button{width:28px;height:28px;border-radius:50%;border:3px solid transparent;padding:0}
+.cols button.on{border-color:var(--ink)}
+.note{color:var(--bad);min-height:1.4em;margin:10px 0 0;font-size:14px}
+.rooms button{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:12px 4px}
+.rooms button:hover{background:var(--soft)}
+.rooms small{color:var(--sub);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.bar{display:flex;align-items:center;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line);flex:none}
+.bar .ttl{flex:1;min-width:0;padding:0 6px}
+.bar .ttl b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .ttl small{display:block;color:var(--sub);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb{border:0;background:none;color:var(--sub);padding:8px 8px;border-radius:6px;font-size:14px}
+.tb:hover{background:var(--soft);color:var(--ink)}
+.tb.back{font-size:22px;line-height:1;padding:4px 10px}
+#pin{flex:none;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--soft);font-size:14px;white-space:pre-wrap;word-break:break-word}
+#log{flex:1;overflow-y:auto;padding:12px 16px 8px;overscroll-behavior:contain}
+.empty{color:var(--sub);text-align:center;margin-top:30vh;padding:0 20px}
+.day{text-align:center;color:var(--sub);font-size:12px;margin:14px 0 6px}
+.msg{padding:2px 6px;margin:0 -6px;border-radius:6px;cursor:default}
+.msg:hover{background:var(--soft)}
+.msg.top{margin-top:10px}
+.hd{display:flex;align-items:baseline;gap:6px;font-size:13px}
+.hd b{font-weight:600}
+.hd time{color:var(--sub);font-size:11px}
+.adm{font-size:10px;border:1px solid currentColor;border-radius:4px;padding:0 4px;color:var(--sub)}
+.tx{white-space:pre-wrap;word-break:break-word}
+.rq{border-left:3px solid var(--line);padding-left:8px;color:var(--sub);font-size:13px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:4px 0;max-width:420px}
+.inv .e{font-size:26px}
+.inv div{flex:1;min-width:0}
+.inv small{display:block;color:var(--sub);font-size:12px}
+.mention{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+body.dark .msg{padding:0;margin:0;background:none}
+body.dark .msg .body{display:inline-block;max-width:85%;background:var(--soft);border-radius:14px;padding:6px 12px;margin:1px 0}
+body.dark .msg.me{text-align:right}
+body.dark .msg.me .body{background:var(--mine);text-align:left}
+body.dark .msg.me .hd{justify-content:flex-end}
+body.dark .msg .hd{padding:0 4px}
+#typing{flex:none;height:18px;padding:0 16px;font-size:12px;color:var(--sub)}
+#newchip{position:absolute;left:50%;transform:translateX(-50%);bottom:84px;border:1px solid var(--line);background:var(--page);border-radius:999px;padding:6px 14px;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+#send{flex:none;border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
+#replying{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--sub);padding:0 4px 6px}
+#replying button{border:0;background:none;color:var(--sub)}
+#send .row{align-items:flex-end}
+#msg{resize:none;max-height:140px;min-height:42px}
+#sheet{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center}
+#sheet .card{background:var(--page);width:100%;max-width:520px;max-height:86vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom))}
+@media (min-width:700px){#sheet{align-items:center}#sheet .card{border-radius:14px}}
+.card h2{font-size:18px;margin:0 0 6px}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.modes button{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--page);border-radius:10px;padding:12px;text-align:left}
+.modes button:hover{background:var(--soft)}
+.modes span{font-size:24px}
+.menu button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:none;padding:13px 4px}
+.menu button:last-child{border-bottom:0}
+.menu button:hover{background:var(--soft)}
+.ppl{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.ppl .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.ppl span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ppl .btn{padding:5px 10px;font-size:13px}
+.tg{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.tg small{display:block;color:var(--sub);font-size:12px}
+.tg input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:var(--acc)}
+.tg select{border:1px solid var(--line);background:var(--page);border-radius:6px;padding:6px}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;letter-spacing:.06em;text-align:center;background:var(--soft);border-radius:10px;padding:12px;margin:10px 0;user-select:all}
+.hint{color:var(--sub);font-size:13px;margin:6px 0}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:var(--page);padding:8px 14px;border-radius:8px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast.on{opacity:1}
+#decoy{position:fixed;inset:0;z-index:100;background:#f8f9fa;color:#202124;display:flex;flex-direction:column;color-scheme:light;overflow:auto}
+.dk-top{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:1px solid #e0e0e0;position:sticky;top:0}
+.dk-ic{width:26px;height:34px;border-radius:3px;background:#5b7fbf;position:relative;flex:none}
+.dk-ic::after{content:"";position:absolute;left:6px;right:6px;top:10px;height:12px;border-top:2px solid #fff;border-bottom:2px solid #fff}
+.dk-name{font-size:17px;user-select:none}
+.dk-menu{display:flex;gap:14px;font-size:13px;color:#444;margin-top:2px;flex-wrap:wrap}
+.dk-page{background:#fff;width:min(816px,calc(100% - 24px));margin:16px auto 40px;padding:56px min(72px,8vw);box-shadow:0 1px 3px rgba(0,0,0,.15);min-height:900px;outline:none;font-family:Georgia,"Times New Roman",serif;font-size:16px;line-height:1.6}
+.dk-page h2{font-size:24px;margin:0 0 4px;font-weight:normal}
+.dk-page h4{font-size:17px;margin:22px 0 6px}
+.dk-date{color:#666;margin:0 0 18px}
+</style>
+</head>
+<body>
+<div id="decoy" hidden>
+  <div class="dk-top"><div class="dk-ic"></div><div><div class="dk-name" id="dkname">Unit 4 Review</div><div class="dk-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Help</span></div></div></div>
+  <div class="dk-page" contenteditable="true" spellcheck="false">
+    <h2>Unit 4 Review: Cells and Energy</h2>
+    <p class="dk-date" id="dkdate"></p>
+    <h4>Photosynthesis</h4>
+    <ul><li>Happens in the chloroplasts of plant cells</li><li>6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂</li><li>Light reactions in the thylakoid membrane make ATP and NADPH</li><li>Calvin cycle in the stroma uses them to fix carbon</li></ul>
+    <h4>Cellular respiration</h4>
+    <ul><li>Glycolysis in the cytoplasm: glucose → 2 pyruvate (net 2 ATP)</li><li>Krebs cycle in the mitochondrial matrix</li><li>Electron transport chain makes most of the ATP (about 34)</li><li>Without oxygen: fermentation (lactic acid or alcohol)</li></ul>
+    <h4>Enzymes</h4>
+    <ul><li>Lower activation energy, are not used up</li><li>Shape of the active site matters (lock and key)</li><li>Too much heat or wrong pH can denature them</li></ul>
+    <h4>To study</h4>
+    <ul><li>Compare photosynthesis and respiration in a table</li><li>Practice questions p. 142, 1 to 15</li><li></li></ul>
+  </div>
+</div>
+
+<div id="app">
+  <section id="home" class="scr">
+    <div class="wrap">
+      <h1>Margin</h1>
+      <p class="lead">Quiet notes with your class.</p>
+      <label class="f" for="nm">Your name</label>
+      <input id="nm" class="in" maxlength="16" autocomplete="off" placeholder="What should people call you?">
+      <div id="cols" class="cols"></div>
+      <h3>New room</h3>
+      <button class="btn pri wide" data-a="create">Start a room (you'll be the admin)</button>
+      <h3>Join a room</h3>
+      <div class="row"><input id="jc" class="in" placeholder="XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn" data-a="join">Join</button></div>
+      <p id="hnote" class="note"></p>
+      <div id="roomsbox" hidden><h3>Your rooms</h3><div id="rooms" class="rooms"></div></div>
+    </div>
+  </section>
+
+  <section id="room" class="scr" hidden>
+    <div class="wrap" style="position:relative">
+      <div class="bar">
+        <button class="tb back" data-a="back" aria-label="Back">‹</button>
+        <div class="ttl"><b id="rname">Room</b><small id="rsub">connecting…</small></div>
+        <button class="tb" data-a="game">Play</button>
+        <button class="tb" data-a="people">People</button>
+        <button class="tb" data-a="set">Settings</button>
+        <button class="tb" data-a="hide">Hide</button>
+      </div>
+      <div id="pin" hidden></div>
+      <div id="log"></div>
+      <button id="newchip" data-a="bottom" hidden>New notes ↓</button>
+      <div id="typing"></div>
+      <form id="send" autocomplete="off">
+        <div id="replying" hidden><span id="replytx"></span><button type="button" data-a="unreply">✕</button></div>
+        <div class="row"><textarea id="msg" class="in" rows="1" maxlength="500" placeholder="Write a note…" enterkeyhint="send"></textarea><button class="btn pri" id="sendbtn">Send</button></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div id="sheet" hidden><div class="card" id="card"></div></div>
+<div id="toast"></div>
+
+<script>
+const GAME_URL="https://fardasticmanguy-rgb.github.io/cool-game/";
+const BROKERS=(()=>{const q=new URLSearchParams(location.search).get("mqtt");return q?q.split(","):["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt"]})();
+const AB="23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+const NC=8;
+const MODES={cards:{e:"🃏",n:"Crash Cards"},brawl:{e:"⚔️",n:"Brawl"},hide:{e:"🙈",n:"Hide & Seek"},party:{e:"🎉",n:"Party"},single:{e:"🎯",n:"One game"}};
+const TITLES=["Notes","Untitled document","Homework","Study guide","Quiz review"];
+const EC={name:"ECDSA",namedCurve:"P-256"},SG={name:"ECDSA",hash:"SHA-256"};
+const IDRE=/^[a-z0-9]{6,20}$/;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const rid=n=>{const a=crypto.getRandomValues(new Uint8Array(n));let s="";for(const b of a)s+="abcdefghijklmnopqrstuvwxyz0123456789"[b%36];return s};
+const clean=(s,n)=>String(s??"").replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩]/g,"").replace(/\s+/g," ").trim().slice(0,n);
+const cleanText=s=>String(s??"").replace(/\r/g,"").replace(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f‪-‮⁦-⁩]/g,"").replace(/\n{3,}/g,"\n\n").trim().slice(0,500);
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>{const a=new Uint8Array(u);let s="";for(let i=0;i<a.length;i+=0x8000)s+=String.fromCharCode(...a.subarray(i,i+0x8000));return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const toUrl=s=>s.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const bytesU=s=>Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
+const sha=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",typeof s==="string"?enc.encode(s):s));
+const hex=u=>[...u].map(b=>b.toString(16).padStart(2,"0")).join("");
+const b32=(u,n)=>{let bits=0,val=0,out="";for(const b of u){val=((val<<8)|b)&0xffff;bits+=8;while(bits>=5&&out.length<n){out+=AB[(val>>>(bits-5))&31];bits-=5}if(out.length>=n)break}return out};
+const fmtCode=c=>c.match(/.{4}/g).join("-");
+const normCode=s=>{const c=[...String(s||"").toUpperCase()].filter(ch=>AB.includes(ch)).join("");return c.length===12?c:null};
+const tm=ts=>new Date(ts).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+const dayLabel=ts=>{const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return"Today";n.setDate(n.getDate()-1);if(d.toDateString()===n.toDateString())return"Yesterday";return d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})};
+
+const me=Object.assign({id:rid(12),name:"",col:Math.floor(Math.random()*NC)},ls.get("mg.me",{}));
+if(!IDRE.test(me.id))me.id=rid(12);
+me.col=Math.abs(me.col|0)%NC;
+const saveMe=()=>ls.set("mg.me",me);
+saveMe();
+const DEF={theme:"doc",notif:false,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
+const S={...DEF,...ls.get("mg.set",{})};
+const saveS=()=>ls.set("mg.set",S);
+
+let pendingAdm=null,R=null,clients=[],up=0,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
+const seen=new Map();
+
+async function deriveKey(secret,fp){
+  const base=await crypto.subtle.importKey("raw",enc.encode("margin:"+secret),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt:enc.encode("margin-v1:"+fp),iterations:200000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function seal(key,s){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(s));return b64(iv)+"."+b64(ct)}
+async function unseal(key,t){try{const[a,b]=t.split(".");if(!b)return null;return dec.decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(a)},key,unb64(b)))}catch(e){return null}}
+
+async function makeRoom(code){
+  const secret=code.slice(0,8),fp=code.slice(8);
+  const tid=hex(await sha("margin-topic:"+secret+fp)).slice(0,24);
+  const r={code,fp,tid,key:await deriveKey(secret,fp),topic:"margin1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
+  const jwk=ls.get("mg.a."+tid,null);if(jwk)await setAdmin(r,jwk);
+  const sm=ls.get("mg.m."+tid,null);if(sm)await acceptMeta(r,sm.ms,sm.sig);
+  for(const m of ls.get("mg.h."+tid,[])){const n=normMsg(m);if(n){n.ok=!!m.ok;r.msgs.set(n.id,n)}}
+  return r;
+}
+async function setAdmin(r,jwk){
+  try{
+    const raw=new Uint8Array(65);raw[0]=4;raw.set(bytesU(jwk.x),1);raw.set(bytesU(jwk.y),33);
+    if(b32(await sha(raw),4)!==r.fp)return false;
+    const k={kty:"EC",crv:"P-256",x:jwk.x,y:jwk.y,d:jwk.d};
+    r.signKey=await crypto.subtle.importKey("jwk",k,EC,false,["sign"]);
+    if(!r.pubKey){r.pubKey=await crypto.subtle.importKey("raw",raw,EC,false,["verify"]);r.pub=b64(raw)}
+    r.adm=k;ls.set("mg.a."+r.tid,k);return true;
+  }catch(e){return false}
+}
+function normMeta(m){
+  const bans={};
+  if(m.bans&&typeof m.bans==="object")for(const k of Object.keys(m.bans).slice(0,300))if(IDRE.test(k))bans[k]=clean(m.bans[k],16)||"Someone";
+  return{v:m.v,name:clean(m.name,30),pin:cleanText(m.pin).slice(0,200),bans,del:Array.isArray(m.del)?m.del.filter(x=>typeof x==="string"&&IDRE.test(x)).slice(-400):[],clr:+m.clr||0,pub:m.pub};
+}
+async function acceptMeta(r,ms,sig){
+  if(typeof ms!=="string"||typeof sig!=="string"||ms.length>30000)return false;
+  let m;try{m=JSON.parse(ms)}catch(e){return false}
+  if(!m||typeof m.pub!=="string"||typeof m.v!=="number"||m.v<=r.meta.v)return false;
+  try{
+    if(!r.pubKey){
+      const raw=unb64(m.pub);
+      if(raw.length!==65||b32(await sha(raw),4)!==r.fp)return false;
+      const k=await crypto.subtle.importKey("raw",raw,EC,false,["verify"]);
+      if(!r.pubKey){r.pubKey=k;r.pub=m.pub}
+    }
+    if(m.pub!==r.pub)return false;
+    if(!await crypto.subtle.verify(SG,r.pubKey,unb64(sig),enc.encode(ms)))return false;
+  }catch(e){return false}
+  if(m.v<=r.meta.v)return false;
+  r.meta=normMeta(m);r.metaRaw={ms,sig};ls.set("mg.m."+r.tid,r.metaRaw);
+  recheck(r);
+  if(r===R){remember(r);paint();if(sheetKind)renderSheet()}
+  return true;
+}
+async function setMeta(patch){
+  const r=R;if(!r||!r.signKey)return;
+  const m={...r.meta,...patch,pub:r.pub,v:Math.max(r.meta.v+1,Date.now())};
+  const ms=JSON.stringify(m);
+  const sig=b64(await crypto.subtle.sign(SG,r.signKey,enc.encode(ms)));
+  await acceptMeta(r,ms,sig);
+  pub(r,{t:"meta",ms,sig},"/meta",true);
+  pushLast(r,0);
+}
+const sigStr=m=>[m.id,m.u,m.ts,m.x,m.g?m.g.m+":"+m.g.c:""].join("|");
+async function verifyMsg(r,m){if(!m.sg||!r.pubKey)return false;try{return await crypto.subtle.verify(SG,r.pubKey,unb64(m.sg),enc.encode(sigStr(m)))}catch(e){return false}}
+async function recheck(r){let ch=false;for(const m of r.msgs.values())if(m.sg&&!m.ok&&await verifyMsg(r,m)){m.ok=true;ch=true}if(ch&&r===R)paint()}
+
+function normMsg(o){
+  if(!o||typeof o.id!=="string"||!IDRE.test(o.id)||typeof o.u!=="string"||!IDRE.test(o.u))return null;
+  const x=cleanText(o.x);
+  const g=o.g&&MODES[o.g.m]&&typeof o.g.c==="string"&&/^[a-z0-9]{4,12}$/.test(o.g.c)?{m:o.g.m,c:o.g.c}:null;
+  if(!x&&!g)return null;
+  return{id:o.id,u:o.u,n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,x,ts:+o.ts||0,r:typeof o.r==="string"&&IDRE.test(o.r)?o.r:null,g,sg:typeof o.sg==="string"&&o.sg.length<200?o.sg:null,ok:false};
+}
+const strip=m=>({id:m.id,u:m.u,n:m.n,c:m.c,x:m.x,ts:m.ts,r:m.r,g:m.g,sg:m.sg});
+const sorted=r=>[...r.msgs.values()].sort((a,b)=>a.ts-b.ts||(a.id<b.id?-1:1));
+const shown=r=>sorted(r).filter(m=>m.ts>=r.meta.clr&&!r.meta.del.includes(m.id)&&!r.meta.bans[m.u]);
+const isBanned=()=>!!(R&&R.meta.bans[me.id]);
+
+let saveT=null;
+function saveHist(r){clearTimeout(saveT);saveT=setTimeout(()=>ls.set("mg.h."+r.tid,sorted(r).slice(-300).map(m=>({...strip(m),ok:m.ok}))),400)}
+async function addMsgs(r,list,live){
+  const added=[];
+  for(const m of list){
+    if(r.msgs.has(m.id))continue;
+    m.ok=await verifyMsg(r,m);
+    if(r.msgs.has(m.id))continue;
+    const now=Date.now();
+    if(live&&Math.abs(m.ts-now)>120000)m.ts=now;
+    if(m.ts>now+120000)m.ts=now;
+    r.msgs.set(m.id,m);added.push(m);
+  }
+  if(!added.length)return;
+  if(r.msgs.size>400){const s=sorted(r);for(const m of s.slice(0,s.length-400))r.msgs.delete(m.id)}
+  saveHist(r);
+  if(r!==R)return;
+  for(const m of added){const t=r.typing.get(m.u);if(t)r.typing.delete(m.u)}
+  const nearBottom=atBottom();
+  paint(nearBottom);
+  if(live)for(const m of added)if(m.u!==me.id&&shown(r).includes(m))alertNew(m,nearBottom);
+}
+
+function loadMqtt(){
+  return new Promise(async res=>{
+    const load=src=>new Promise(r=>{const s=document.createElement("script");s.src=src;s.onload=()=>r(true);s.onerror=()=>r(false);document.head.append(s)});
+    for(const src of["https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js","https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js"]){if(window.mqtt)break;await load(src)}
+    res(!!window.mqtt);
+  });
+}
+const topics=r=>[r.topic,r.topic+"/meta",r.topic+"/last"];
+function connect(){
+  for(const url of BROKERS){
+    let c;try{c=window.mqtt.connect(url,{clientId:"mg_"+rid(10),clean:true,keepalive:30,reconnectPeriod:3000,connectTimeout:9000,protocolVersion:4})}catch(e){continue}
+    c.__up=false;
+    c.on("connect",()=>{c.__up=true;countUp();if(R){c.subscribe(topics(R),{qos:0});wentUp()}});
+    c.on("close",()=>{c.__up=false;countUp()});
+    c.on("error",()=>{});
+    c.on("message",(t,buf)=>onRaw(t,buf.toString()));
+    clients.push(c);
+  }
+}
+function countUp(){up=clients.filter(c=>c.__up).length;if(R)renderHead()}
+function wentUp(){clearTimeout(upTimer);upTimer=setTimeout(()=>{const r=R;if(!r)return;sendP(r);askHistory(r);if(r.signKey&&r.metaRaw)pub(r,{t:"meta",...r.metaRaw},"/meta",true)},300)}
+async function pub(r,obj,sub,retain){
+  if(!r)return;
+  const txt=await seal(r.key,JSON.stringify(obj));
+  seen.set(txt,Date.now());
+  for(const c of clients)if(c.__up)try{c.publish(r.topic+(sub||""),txt,{qos:0,retain:!!retain})}catch(e){}
+}
+async function onRaw(topic,txt){
+  const r=R;
+  if(!r||!topics(r).includes(topic)||txt.length>200000||seen.has(txt))return;
+  seen.set(txt,Date.now());
+  if(seen.size>3000){const cut=Date.now()-120000;for(const[k,t]of seen)if(t<cut)seen.delete(k)}
+  const s=await unseal(r.key,txt);
+  if(!s||r!==R)return;
+  let o;try{o=JSON.parse(s)}catch(e){return}
+  if(o&&typeof o==="object")handle(r,o);
+}
+async function handle(r,o){
+  const now=Date.now();
+  if(o.t==="m"){const m=normMsg(o);if(m)await addMsgs(r,[m],true)}
+  else if(o.t==="p"){
+    if(typeof o.u!=="string"||!IDRE.test(o.u)||o.u===me.id||r.meta.bans[o.u])return;
+    if(o.bye)r.online.delete(o.u);else{const fresh=!r.online.has(o.u);r.online.set(o.u,{n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,at:now});if(fresh&&!o.re)setTimeout(()=>sendP(r,true),300+Math.random()*900)}
+    renderHead();if(sheetKind==="people")renderSheet();
+  }
+  else if(o.t==="ty"){if(typeof o.u==="string"&&IDRE.test(o.u)&&o.u!==me.id){r.typing.set(o.u,{n:clean(o.n,16)||"Someone",at:now});renderTyping()}}
+  else if(o.t==="h?"){
+    if(o.u===me.id||typeof o.rq!=="string"||r.hreq.has(o.rq))return;
+    const since=+o.since||0,list=shown(r).filter(m=>m.ts>since).slice(-150);
+    if(!list.length&&!r.metaRaw)return;
+    r.hreq.set(o.rq,setTimeout(()=>{r.hreq.set(o.rq,0);pub(r,{t:"h",rq:o.rq,list:list.map(strip),...(r.metaRaw||{})})},200+Math.random()*1200));
+  }
+  else if(o.t==="h"){
+    if(typeof o.rq==="string"){clearTimeout(r.hreq.get(o.rq));r.hreq.set(o.rq,0)}
+    if(o.ms&&o.sig)await acceptMeta(r,o.ms,o.sig);
+    const list=Array.isArray(o.list)?o.list.slice(-200).map(normMsg).filter(Boolean):[];
+    await addMsgs(r,list,false);
+  }
+  else if(o.t==="meta")await acceptMeta(r,o.ms,o.sig);
+}
+function sendP(r,re,bye){if(r&&!isBanned())pub(r,{t:"p",u:me.id,n:me.name,c:me.col,re:re?1:0,bye:bye?1:0})}
+function askHistory(r){const s=sorted(r);pub(r,{t:"h?",rq:rid(8),since:s.length?s[s.length-1].ts:0,u:me.id})}
+function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:shown(r).slice(-40).map(strip),...(r.metaRaw||{})},"/last",true),delay??1500)}
+
+function remember(r){
+  const list=ls.get("mg.rooms",[]).filter(x=>x.code!==r.code);
+  list.unshift({code:r.code,name:r.meta.name||"Room",at:Date.now()});
+  ls.set("mg.rooms",list.slice(0,12));ls.set("mg.last",r.code);
+}
+
+async function enterRoom(code,admJwk){
+  code=normCode(code);
+  if(!code){hnote("That code doesn't look right. It has 12 letters and numbers.");return}
+  if(!me.name){hnote("Pick a name first.");$("#nm").focus();$("#jc").value=fmtCode(code);return}
+  if(busy)return;busy=true;hnote("");
+  try{
+    const r=await makeRoom(code);
+    if(admJwk&&!await setAdmin(r,admJwk))toast("That admin link doesn't match this room.");
+    pendingAdm=null;
+    openRoom(r);
+  }finally{busy=false}
+}
+async function createRoom(){
+  if(!me.name){hnote("Pick a name first.");$("#nm").focus();return}
+  if(busy)return;busy=true;
+  try{
+    const kp=await crypto.subtle.generateKey(EC,true,["sign","verify"]);
+    const raw=new Uint8Array(await crypto.subtle.exportKey("raw",kp.publicKey));
+    const jwk=await crypto.subtle.exportKey("jwk",kp.privateKey);
+    const code=b32(crypto.getRandomValues(new Uint8Array(8)),8)+b32(await sha(raw),4);
+    const r=await makeRoom(code);
+    await setAdmin(r,jwk);
+    openRoom(r);
+    await setMeta({name:me.name+"'s room"});
+    openSheet("invite");
+  }finally{busy=false}
+}
+function openRoom(r){
+  if(R&&R!==r)leaveRoom(true);
+  R=r;replyTo=null;remember(r);
+  for(const c of clients)if(c.__up)c.subscribe(topics(r),{qos:0});
+  if(up)wentUp();
+  $("#home").hidden=true;$("#room").hidden=false;
+  paint(true);renderReply();
+  if(matchMedia("(pointer:fine)").matches)$("#msg").focus();
+}
+function leaveRoom(quiet){
+  const r=R;if(!r)return;
+  sendP(r,false,true);
+  for(const c of clients)if(c.__up)try{c.unsubscribe(topics(r))}catch(e){}
+  for(const t of r.hreq.values())clearTimeout(t);
+  R=null;
+  if(!quiet){ls.del("mg.last");showHome()}
+}
+function forgetRoom(){
+  const r=R;if(!r)return;
+  if(!confirm("Leave this room and delete it from this device?"+(r.signKey?"\n\nYou're the admin. Copy your admin link first or you'll lose admin.":"")))return;
+  leaveRoom(true);
+  for(const k of["mg.h.","mg.m.","mg.a."])ls.del(k+r.tid);
+  ls.set("mg.rooms",ls.get("mg.rooms",[]).filter(x=>x.code!==r.code));ls.del("mg.last");
+  closeSheet();showHome();
+}
+function showHome(){
+  $("#room").hidden=true;$("#home").hidden=false;
+  $("#nm").value=me.name;renderCols();
+  const list=ls.get("mg.rooms",[]);
+  $("#roomsbox").hidden=!list.length;
+  $("#rooms").innerHTML=list.map(x=>`<button data-a="room" data-code="${esc(x.code)}"><span>${esc(x.name)}</span><small>${esc(fmtCode(x.code))}</small></button>`).join("");
+}
+function renderCols(){$("#cols").innerHTML=[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}
+function hnote(t){$("#hnote").textContent=t}
+
+function atBottom(){const l=$("#log");return l.scrollHeight-l.scrollTop-l.clientHeight<90}
+function paint(stick){if(stick)paint.stick=true;if(paintQ)return;paintQ=true;requestAnimationFrame(()=>{paintQ=false;const s=paint.stick;paint.stick=false;renderHead();renderLog(s);renderInput()})}
+function renderHead(){
+  if(!R)return;
+  const now=Date.now();
+  for(const[u,p]of R.online)if(now-p.at>70000)R.online.delete(u);
+  $("#rname").textContent=R.meta.name||"Room";
+  $("#rsub").textContent=!up?(clients.length?"connecting…":"offline, check your internet"):`${R.online.size+1} here`;
+  const pin=$("#pin");pin.hidden=!R.meta.pin;pin.textContent=R.meta.pin?"📌 "+R.meta.pin:"";
+}
+function renderLog(stick){
+  const r=R;if(!r)return;
+  const log=$("#log"),list=shown(r),byId=new Map(list.map(m=>[m.id,m]));
+  if(!list.length){log.innerHTML=`<div class="empty">No notes yet.<br>Share the code <b>${esc(fmtCode(r.code))}</b> so people can join.</div>`;return}
+  const nearB=stick||atBottom(),mention=new RegExp("@"+me.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
+  let h="",prev=null,day="";
+  for(const m of list){
+    const d=new Date(m.ts).toDateString();
+    if(d!==day){day=d;h+=`<div class="day">${dayLabel(m.ts)}</div>`;prev=null}
+    const mine=m.u===me.id,grp=prev&&prev.u===m.u&&m.ts-prev.ts<180000&&!m.r&&!m.g&&!prev.g;
+    const hd=grp?"":`<div class="hd"><b style="color:var(--c${m.c})">${esc(mine?"You":m.n)}</b>${m.ok?'<span class="adm">admin</span>':""}<time>${tm(m.ts)}</time></div>`;
+    let body="";
+    if(m.r){const q=byId.get(m.r);body+=`<div class="rq">↪ ${q?esc(q.n)+": "+esc(q.x||"game invite"):"a deleted note"}</div>`}
+    if(m.g){
+      const md=MODES[m.g.m],old=Date.now()-m.ts>45*60000;
+      body+=`<div class="inv"><span class="e">${md.e}</span><div><b>${mine?"You":esc(m.n)} ${mine?"want":"wants"} to play ${esc(md.n)}</b><small>${old?"This invite is old":"Crashpot · tap to jump in"}</small></div>${old?"":`<button class="btn pri" data-a="play" data-id="${m.id}">${mine?"Open":"Join"}</button>`}</div>`;
+    }
+    if(m.x)body+=`<div class="tx">${esc(m.x)}</div>`;
+    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${!mine&&me.name&&mention.test(m.x)?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div></div>`;
+    prev=m;
+  }
+  log.innerHTML=h;
+  if(nearB){log.scrollTop=log.scrollHeight;$("#newchip").hidden=true}
+}
+function renderTyping(){
+  if(!R)return;
+  const now=Date.now(),names=[];
+  for(const[u,t]of R.typing){if(now-t.at>4500)R.typing.delete(u);else names.push(t.n)}
+  $("#typing").textContent=names.length?names.slice(0,3).join(", ")+(names.length>1?" are":" is")+" writing…":"";
+}
+function renderInput(){
+  const b=isBanned(),t=$("#msg");
+  t.disabled=b;$("#sendbtn").disabled=b;
+  t.placeholder=b?"The admin removed you from this room":"Write a note…";
+}
+function renderReply(){
+  const q=replyTo&&R&&R.msgs.get(replyTo);
+  $("#replying").hidden=!q;
+  if(q)$("#replytx").textContent="Replying to "+q.n+": "+(q.x||"game invite").slice(0,60);
+}
+function autosize(){const t=$("#msg");t.style.height="auto";t.style.height=Math.min(140,t.scrollHeight+2)+"px"}
+
+async function sendMsg(extra){
+  const r=R;if(!r||isBanned())return;
+  const t=$("#msg"),x=extra?"":cleanText(t.value);
+  if(!x&&!extra)return;
+  const now=Date.now();sendTimes=sendTimes.filter(s=>now-s<6000);
+  if(sendTimes.length>=6){toast("Slow down a little");return}
+  sendTimes.push(now);
+  const m={id:rid(12),u:me.id,n:me.name,c:me.col,x,ts:now,r:extra?null:replyTo,g:extra||null,sg:null};
+  if(r.signKey)m.sg=b64(await crypto.subtle.sign(SG,r.signKey,enc.encode(sigStr(m))));
+  if(!extra){t.value="";autosize();replyTo=null;renderReply()}
+  pub(r,{t:"m",...m});
+  await addMsgs(r,[normMsg(m)],false);
+  paint(true);pushLast(r);
+}
+function typing(){const r=R,now=Date.now();if(!r||now-lastTyping<3000||!$("#msg").value.trim())return;lastTyping=now;pub(r,{t:"ty",u:me.id,n:me.name})}
+
+function gameUrl(c,m,host){return GAME_URL+"?play="+c+"&mode="+m+"&name="+encodeURIComponent(me.name)+(host?"&h=1":"")}
+function invite(mode){
+  if(!MODES[mode]||!R||isBanned())return;
+  const c=rid(6);
+  window.open(gameUrl(c,mode,true),"_blank","noopener");
+  closeSheet();
+  sendMsg({m:mode,c});
+}
+function playInvite(id){
+  const m=R&&R.msgs.get(id);if(!m||!m.g)return;
+  window.open(gameUrl(m.g.c,m.g.m,m.u===me.id),"_blank","noopener");
+}
+
+function alertNew(m,nearBottom){
+  if(S.sound)tick();
+  if(S.buzz&&navigator.vibrate)try{navigator.vibrate(25)}catch(e){}
+  if(document.hidden||decoyOn||!document.hasFocus()){
+    unseen++;setFav();
+    if(S.notif)sysNotify(m);
+  }else if(!nearBottom)$("#newchip").hidden=false;
+}
+async function sysNotify(m){
+  if(!("Notification" in window)||Notification.permission!=="granted")return;
+  const title=S.peek?(R.meta.name||"Room"):S.title;
+  const body=S.peek?m.n+": "+(m.g?"wants to play "+MODES[m.g.m].n:m.x):unseen>1?unseen+" new notes":"1 new note";
+  const opt={body,tag:"mg",renotify:true,icon:"icon.svg",silent:!S.sound};
+  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg){await reg.showNotification(title,opt);return}}catch(e){}
+  try{const n=new Notification(title,opt);n.onclick=()=>{window.focus();n.close()}}catch(e){}
+}
+async function clearNotifs(){
+  unseen=0;setFav();
+  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)for(const n of await reg.getNotifications({tag:"mg"}))n.close()}catch(e){}
+}
+let actx=null;
+function tick(){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.04,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.12);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.13)}catch(e){}}
+function setFav(){
+  const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");
+  const box=(a,b,w,h,rad)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,w,h,rad);else x.rect(a,b,w,h);x.fill()};
+  x.fillStyle="#5b7fbf";box(10,4,44,56,6);
+  x.fillStyle="#fff";for(const[y,w]of[[18,28],[28,28],[38,20]])box(18,y,w,4,2);
+  if(unseen){x.fillStyle="#d93025";x.beginPath();x.arc(50,14,11,0,7);x.fill()}
+  $("#fav").href=c.toDataURL();
+  document.title=S.title;
+}
+
+function hide(on){
+  decoyOn=on;$("#decoy").hidden=!on;$("#app").hidden=on;
+  if(on){closeSheet();if(document.activeElement)document.activeElement.blur()}
+  else if(!document.hidden)clearNotifs();
+}
+let dkTaps=[];
+$("#dkname").addEventListener("click",()=>{const n=Date.now();dkTaps=dkTaps.filter(t=>n-t<900);dkTaps.push(n);if(dkTaps.length>=3){dkTaps=[];hide(false)}});
+$("#dkdate").textContent=new Date().toLocaleDateString([],{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+
+function openSheet(kind,arg){sheetKind=kind;sheetArg=arg;$("#sheet").hidden=false;renderSheet()}
+function closeSheet(){sheetKind=null;sheetArg=null;$("#sheet").hidden=true}
+function renderSheet(){
+  const r=R,c=$("#card");if(!r||!sheetKind){closeSheet();return}
+  const adm=!!r.signKey;
+  if(sheetKind==="game"){
+    c.innerHTML=`<h2>Wanna play?</h2><p class="hint">Pick a game. Everyone here gets an invite, and the game opens in a new tab.</p><div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
+  }else if(sheetKind==="invite"){
+    c.innerHTML=`<h2>Invite people</h2><p class="hint">Anyone with this code can read and write in this room. Only share it with people you trust.</p><div class="code">${esc(fmtCode(r.code))}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
+  }else if(sheetKind==="people"){
+    const ppl=[[me.id,{n:me.name,c:me.col}],...r.online];
+    const bans=Object.entries(r.meta.bans);
+    c.innerHTML=`<h2>Here now</h2>${ppl.map(([u,p])=>`<div class="ppl"><i class="dot" style="background:var(--c${p.c})"></i><span>${esc(p.n)}${u===me.id?" (you)":""}</span>${adm&&u!==me.id?`<button class="btn bad" data-a="ban" data-u="${u}" data-n="${esc(p.n)}">Remove</button>`:""}</div>`).join("")}
+    ${adm&&bans.length?`<h3>Removed</h3>${bans.map(([u,n])=>`<div class="ppl"><span>${esc(n)}</span><button class="btn" data-a="unban" data-u="${u}">Let back in</button></div>`).join("")}`:""}
+    <button class="btn wide" data-a="inv">Invite people</button><button class="btn wide" data-a="close">Close</button>`;
+  }else if(sheetKind==="msg"){
+    const m=r.msgs.get(sheetArg);if(!m){closeSheet();return}
+    c.innerHTML=`<h2>${esc(m.u===me.id?"You":m.n)}</h2><p class="hint">${tm(m.ts)}</p><div class="menu">${isBanned()?"":'<button data-a="reply">Reply</button>'}${m.x?'<button data-a="copy">Copy text</button>':""}${adm?'<button data-a="del">Delete for everyone</button>':""}${adm&&m.u!==me.id?`<button data-a="ban" data-u="${m.u}" data-n="${esc(m.n)}">Remove ${esc(m.n)} from the room</button>`:""}<button data-a="close">Cancel</button></div>`;
+  }else if(sheetKind==="set"){
+    const notifOk="Notification" in window;
+    const tg=(k,t,s)=>`<label class="tg"><span>${t}${s?`<small>${s}</small>`:""}</span><input type="checkbox" data-s="${k}" ${S[k]?"checked":""}></label>`;
+    c.innerHTML=`<h2>Settings</h2>
+    <h3>Room</h3><button class="btn wide" data-a="inv">Invite people / show code</button>
+    <h3>You</h3><input id="snm" class="in" maxlength="16" value="${esc(me.name)}" placeholder="Your name"><div class="cols" id="scols">${[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}</div>
+    <h3>Alerts</h3>
+    ${notifOk?tg("notif","Notifications","When this tab is in the background"):`<p class="hint">On iPhone, tap Share → Add to Home Screen, then open it from there to get notifications.</p>`}
+    ${tg("peek","Show who and what","Off = it only says “1 new note”")}
+    ${tg("sound","Sound","A tiny tick on new notes")}
+    ${tg("buzz","Vibrate","On phones that support it")}
+    <h3>Stealth</h3>
+    <label class="tg"><span>Look</span><select data-s="theme"><option value="doc" ${S.theme==="doc"?"selected":""}>Plain document</option><option value="dark" ${S.theme==="dark"?"selected":""}>Dark chat</option></select></label>
+    <label class="tg"><span>Tab name</span><select data-s="title">${TITLES.map(t=>`<option ${S.title===t?"selected":""}>${esc(t)}</option>`).join("")}</select></label>
+    ${tg("autohide","Hide when I switch away","Shows the fake notes page when you come back")}
+    <p class="hint">Press <b>Esc</b> or tap <b>Hide</b> to cover the screen with a fake notes page. Press <b>Esc</b> again, or tap the page title 3 times, to come back.</p>
+    ${adm?`<h3>Admin</h3>
+    <label class="f" for="srn">Room name</label><input id="srn" class="in" maxlength="30" value="${esc(r.meta.name)}">
+    <label class="f" for="spin">Pinned note</label><textarea id="spin" class="in" rows="2" maxlength="200">${esc(r.meta.pin)}</textarea>
+    <button class="btn pri wide" data-a="savemeta">Save</button>
+    <button class="btn wide bad" data-a="clear">Clear chat for everyone</button>
+    <button class="btn wide" data-a="copyadm">Copy admin link</button>
+    <p class="hint">The admin link makes you admin on another device. Keep it secret.</p>`:""}
+    <h3>Leave</h3><button class="btn wide bad" data-a="forget">Leave and forget this room</button>
+    <button class="btn wide" data-a="close">Done</button>`;
+  }
+}
+
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),1600)}
+async function copy(t,msg){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();try{document.execCommand("copy")}catch(_){}a.remove()}toast(msg||"Copied")}
+const baseUrl=()=>location.origin+location.pathname;
+const inviteUrl=r=>baseUrl()+"#j="+fmtCode(r.code);
+function applyTheme(){document.body.classList.toggle("dark",S.theme==="dark");document.querySelector('meta[name="theme-color"]').content=S.theme==="dark"?"#171a21":"#ffffff";setFav()}
+function setName(v){const n=clean(v,16);if(!n||n===me.name)return;me.name=n;saveMe();if(R){sendP(R,true);paint()}}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-a]");
+  if(!b){
+    if(e.target.id==="sheet")closeSheet();
+    const m=e.target.closest(".msg");
+    if(m&&!getSelection().toString())openSheet("msg",m.dataset.id);
+    return;
+  }
+  const a=b.dataset.a;
+  if(a==="create")createRoom();
+  else if(a==="join")enterRoom($("#jc").value,pendingAdm);
+  else if(a==="room")enterRoom(b.dataset.code);
+  else if(a==="col"){me.col=+b.dataset.i;saveMe();renderCols();if(R){sendP(R,true);paint();if(sheetKind)renderSheet()}}
+  else if(a==="back")leaveRoom();
+  else if(a==="game")openSheet("game");
+  else if(a==="people")openSheet("people");
+  else if(a==="set")openSheet("set");
+  else if(a==="inv")openSheet("invite");
+  else if(a==="hide")hide(true);
+  else if(a==="close")closeSheet();
+  else if(a==="mode")invite(b.dataset.m);
+  else if(a==="play")playInvite(b.dataset.id);
+  else if(a==="bottom"){const l=$("#log");l.scrollTop=l.scrollHeight;b.hidden=true}
+  else if(a==="unreply"){replyTo=null;renderReply()}
+  else if(a==="reply"){replyTo=sheetArg;closeSheet();renderReply();$("#msg").focus()}
+  else if(a==="copy"){const m=R&&R.msgs.get(sheetArg);if(m)copy(m.x);closeSheet()}
+  else if(a==="del"){if(R)setMeta({del:[...R.meta.del,sheetArg].slice(-400)});closeSheet()}
+  else if(a==="ban"){if(R&&confirm("Remove "+b.dataset.n+" from this room?"))setMeta({bans:{...R.meta.bans,[b.dataset.u]:b.dataset.n}});if(sheetKind==="msg")closeSheet()}
+  else if(a==="unban"){if(R){const bans={...R.meta.bans};delete bans[b.dataset.u];setMeta({bans})}}
+  else if(a==="copyinv"){if(R)copy(inviteUrl(R),"Invite link copied")}
+  else if(a==="share"){if(R)navigator.share({title:S.title,url:inviteUrl(R)}).catch(()=>{})}
+  else if(a==="copyadm"){if(R&&R.adm)copy(inviteUrl(R)+"&a="+toUrl(btoa(JSON.stringify(R.adm))),"Admin link copied. Keep it secret!")}
+  else if(a==="savemeta"){setMeta({name:clean($("#srn").value,30)||R.meta.name,pin:cleanText($("#spin").value).slice(0,200)});toast("Saved");closeSheet()}
+  else if(a==="clear"){if(R&&confirm("Clear the chat for everyone?"))setMeta({clr:Date.now(),del:[]});closeSheet()}
+  else if(a==="forget")forgetRoom();
+});
+document.addEventListener("change",async e=>{
+  const k=e.target.dataset&&e.target.dataset.s;
+  if(e.target.id==="snm"){setName(e.target.value);e.target.value=me.name;return}
+  if(!k)return;
+  if(e.target.type==="checkbox"){
+    S[k]=e.target.checked;
+    if(k==="notif"&&S.notif){
+      try{if(Notification.permission!=="granted"&&await Notification.requestPermission()!=="granted"){S.notif=false;e.target.checked=false;toast("Notifications are blocked in your browser settings")}}catch(err){S.notif=false;e.target.checked=false}
+    }
+  }else S[k]=e.target.value;
+  saveS();applyTheme();
+});
+$("#nm").addEventListener("input",e=>{const n=clean(e.target.value,16);if(n){me.name=n;saveMe();hnote("")}});
+$("#jc").addEventListener("keydown",e=>{if(e.key==="Enter")enterRoom(e.target.value,pendingAdm)});
+$("#send").addEventListener("submit",e=>{e.preventDefault();sendMsg()});
+$("#msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendMsg()}});
+$("#msg").addEventListener("input",()=>{autosize();typing()});
+$("#log").addEventListener("scroll",()=>{if(atBottom())$("#newchip").hidden=true});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();hide(!decoyOn)}});
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden){if(S.autohide&&R)hide(true)}
+  else{if(R)sendP(R,true);if(!decoyOn)clearNotifs()}
+});
+window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
+window.addEventListener("pagehide",()=>{if(R)sendP(R,false,true)});
+setInterval(()=>{if(R&&up)sendP(R,true)},25000);
+setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")renderSheet()}},5000);
+
+(async()=>{
+  applyTheme();
+  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+  const h=new URLSearchParams(location.hash.slice(1));
+  const j=h.get("j"),adm=h.get("a");
+  if(j)try{history.replaceState(null,"",baseUrl()+location.search)}catch(e){}
+  let admJwk=null;if(adm)try{admJwk=JSON.parse(atob(adm.replace(/-/g,"+").replace(/_/g,"/")))}catch(e){}
+  showHome();
+  if(j)$("#jc").value=normCode(j)?fmtCode(normCode(j)):j;
+  const target=j||ls.get("mg.last",null);
+  if(target&&me.name)await enterRoom(target,admJwk);
+  else if(j){hnote("Pick a name, then tap Join.");$("#nm").focus();pendingAdm=admJwk}
+  if(await loadMqtt())connect();else if(R)renderHead();
+})();
+</script>
+</body>
+</html>
