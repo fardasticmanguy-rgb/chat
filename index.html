@@ -51,7 +51,13 @@ label.f{display:block;font-size:13px;color:var(--sub);margin:14px 0 6px}
 #log{flex:1;overflow-y:auto;padding:12px 16px 8px;overscroll-behavior:contain}
 .empty{color:var(--sub);text-align:center;margin-top:30vh;padding:0 20px}
 .day{text-align:center;color:var(--sub);font-size:12px;margin:14px 0 6px}
-.msg{padding:2px 6px;margin:0 -6px;border-radius:6px;cursor:default}
+.msg{position:relative;padding:2px 6px;margin:0 -6px;border-radius:6px;cursor:default;transition:background .3s}
+.rb{position:absolute;right:4px;top:-10px;border:1px solid var(--line);background:var(--page);color:var(--sub);border-radius:6px;padding:2px 8px;font-size:12px;display:none;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.rb:hover{color:var(--ink)}
+@media (hover:hover){.msg:hover .rb{display:block}}
+.msg.flash{background:color-mix(in srgb,var(--acc) 22%,transparent)!important}
+.msg.swipe{transition:none}
+.rq{cursor:pointer}
 .msg:hover{background:var(--soft)}
 .msg.top{margin-top:10px}
 .hd{display:flex;align-items:baseline;gap:6px;font-size:13px}
@@ -64,8 +70,45 @@ label.f{display:block;font-size:13px;color:var(--sub);margin:14px 0 6px}
 .inv .e{font-size:26px}
 .inv div{flex:1;min-width:0}
 .inv small{display:block;color:var(--sub);font-size:12px}
+.badge{display:inline-block;min-width:20px;text-align:center;background:var(--bad);color:#fff;border-radius:999px;font-size:11px;font-weight:600;padding:1px 6px;margin-left:6px;font-style:normal}
+.box{border:1px solid var(--line);border-radius:12px;padding:4px 14px 14px;margin-top:14px}
+.box h3{margin-top:12px}
+.box .hint{margin:0 0 10px}
+.nbar{display:flex;align-items:center;gap:8px;flex:none;padding:8px 10px 8px 16px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--acc) 8%,var(--page));font-size:14px}
+.nbar span{flex:1;min-width:0}
+.nbar .btn{padding:6px 12px;font-size:13px}
+.st{background:var(--soft);border-radius:8px;padding:8px 10px;color:var(--ink)}
+.help{padding-left:20px;margin:10px 0}
+.help li{margin:0 0 10px}
+.bar .ttl{cursor:pointer}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.brand .dk-ic{width:30px;height:38px}
+.box{background:var(--soft);border:0}
+.box .in{background:var(--page)}
+.me-box{display:flex;flex-direction:column}
+.rooms{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rooms button{padding:12px 14px!important}
+.rooms button:last-child{border-bottom:0!important}
+.rooms .rl{display:flex;align-items:center;gap:12px;min-width:0}
+.rooms .rl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av{width:30px;height:30px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px;font-style:normal}
+.msg.top .hd{position:relative}
+.msg .av.ma{position:absolute;left:-36px;top:2px;width:26px;height:26px;font-size:12px}
+#log{padding-left:50px!important}
+body.dark #log{padding-left:16px!important}
+body.dark .msg .av.ma{display:none}
+.day{display:flex;align-items:center;gap:10px}
+.day::before,.day::after{content:"";flex:1;height:1px;background:var(--line)}
+#msg{border-radius:20px;padding:10px 16px}
+#sendbtn{border-radius:20px;min-height:42px}
+.shd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.shd h2{margin:0}
+.shd .x{border:0;background:var(--soft);color:var(--sub);width:32px;height:32px;border-radius:50%;font-size:16px;flex:none}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:-6px auto 12px}
+@media (min-width:700px){.grab{display:none}}
+.tb{font-weight:500}
 .mention{background:color-mix(in srgb,var(--acc) 12%,transparent)}
-body.dark .msg{padding:0;margin:0;background:none}
+body.dark .msg{padding:0;margin:0;background:none;border-radius:14px}
 body.dark .msg .body{display:inline-block;max-width:85%;background:var(--soft);border-radius:14px;padding:6px 12px;margin:1px 0}
 body.dark .msg.me{text-align:right}
 body.dark .msg.me .body{background:var(--mine);text-align:left}
@@ -99,7 +142,7 @@ body.dark .msg .hd{padding:0 4px}
 .tg select{border:1px solid var(--line);background:var(--page);border-radius:6px;padding:6px}
 .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:22px;letter-spacing:.06em;text-align:center;background:var(--soft);border-radius:10px;padding:12px;margin:10px 0;user-select:all}
 .hint{color:var(--sub);font-size:13px;margin:6px 0}
-#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:var(--ink);color:var(--page);padding:8px 14px;border-radius:8px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
+#toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);text-align:center;background:var(--ink);color:var(--page);padding:8px 14px;border-radius:8px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}
 #toast.on{opacity:1}
 #decoy{position:fixed;inset:0;z-index:100;background:#f8f9fa;color:#202124;display:flex;flex-direction:column;color-scheme:light;overflow:auto}
 .dk-top{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:1px solid #e0e0e0;position:sticky;top:0}
@@ -133,18 +176,24 @@ body.dark .msg .hd{padding:0 4px}
 <div id="app">
   <section id="home" class="scr">
     <div class="wrap">
-      <h1>Chat</h1>
-      <p class="lead">Quiet notes with your class.</p>
+      <div class="brand"><div class="dk-ic"></div><h1>Chat</h1></div>
+      <p class="lead">Chat with your class. It looks like a plain document, and <b>Esc</b> hides it in a flash.</p>
       <label class="f" for="nm">Your name</label>
-      <input id="nm" class="in" maxlength="16" autocomplete="off" placeholder="What should people call you?">
+      <input id="nm" class="in" maxlength="16" autocomplete="off" enterkeyhint="next" placeholder="What should people call you?">
       <div id="cols" class="cols"></div>
-      <h3>New room</h3>
-      <input id="nc" class="in" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Pick a code like pizza or 42 (or leave empty)">
-      <button class="btn pri wide" data-a="create">Start a room (you'll be the admin)</button>
-      <h3>Join a room</h3>
-      <div class="row"><input id="jc" class="in" placeholder="Room code" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn" data-a="join">Join</button></div>
+      <div class="box">
+        <h3>Join a room</h3>
+        <p class="hint">Got a code from a friend? Type it here.</p>
+        <div class="row"><input id="jc" class="in" maxlength="20" placeholder="Code, like pizza or 482" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"><button class="btn pri" data-a="join">Join</button></div>
+      </div>
+      <div class="box">
+        <h3>Or start your own</h3>
+        <p class="hint">You'll be the admin and get a code to share. Leave it empty for a random number.</p>
+        <div class="row"><input id="nc" class="in" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="Your own code (optional)"><button class="btn" data-a="create">Start</button></div>
+      </div>
       <p id="hnote" class="note"></p>
       <div id="roomsbox" hidden><h3>Your rooms</h3><div id="rooms" class="rooms"></div></div>
+      <button class="btn wide" data-a="help">How does this work?</button>
     </div>
   </section>
 
@@ -152,12 +201,13 @@ body.dark .msg .hd{padding:0 4px}
     <div class="wrap" style="position:relative">
       <div class="bar">
         <button class="tb back" data-a="back" aria-label="Back">‹</button>
-        <div class="ttl"><b id="rname">Room</b><small id="rsub">connecting…</small></div>
-        <button class="tb" data-a="game">Play</button>
-        <button class="tb" data-a="people">People</button>
-        <button class="tb" data-a="set">Settings</button>
-        <button class="tb" data-a="hide">Hide</button>
+        <div class="ttl" data-a="inv" title="Show the code and invite people"><b id="rname">Room</b><small id="rsub">connecting…</small></div>
+        <button class="tb" data-a="game" title="Invite everyone to a game">Play</button>
+        <button class="tb" data-a="people" title="Who's here">People</button>
+        <button class="tb" data-a="set" title="Settings and notifications">Settings</button>
+        <button class="tb" data-a="hide" title="Cover the screen with a fake page (Esc)">Hide</button>
       </div>
+      <div id="nbar" class="nbar" hidden><span id="nbtx"></span><button class="btn pri" id="nbon" data-a="notifon">Turn on</button><button class="tb" data-a="nbx" aria-label="Dismiss">✕</button></div>
       <div id="pin" hidden></div>
       <div id="log"></div>
       <button id="newchip" data-a="bottom" hidden>New notes ↓</button>
@@ -204,12 +254,12 @@ if(!IDRE.test(me.id))me.id=rid(12);
 me.col=Math.abs(me.col|0)%NC;
 const saveMe=()=>ls.set("mg.me",me);
 saveMe();
-const DEF={theme:"doc",notif:false,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
+const DEF={theme:"doc",notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
 
-let probe=null,pendingAdm=null,R=null,clients=[],up=0,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
-const seen=new Map();
+let probe=null,pendingAdm=null,R=null,clients=[],up=0,everUp=false,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
+const seen=new Map(),W=new Map();
 
 async function deriveKey(code){
   const base=await crypto.subtle.importKey("raw",enc.encode("chat:"+code),"PBKDF2",false,["deriveKey"]);
@@ -302,10 +352,10 @@ async function addMsgs(r,list,live){
   if(r.msgs.size>400){const s=sorted(r);for(const m of s.slice(0,s.length-400))r.msgs.delete(m.id)}
   saveHist(r);
   if(r!==R)return;
-  for(const m of added){const t=r.typing.get(m.u);if(t)r.typing.delete(m.u)}
-  const nearBottom=atBottom();
+  for(const m of added)r.typing.delete(m.u);
+  const nearBottom=atBottom(),vis=new Set(shown(r).map(m=>m.id));
   paint(nearBottom);
-  if(live)for(const m of added)if(m.u!==me.id&&shown(r).includes(m))alertNew(m,nearBottom);
+  alertNew(added.filter(m=>m.u!==me.id&&vis.has(m.id)&&(live||m.ts>r.openedAt)),nearBottom);
 }
 
 function loadMqtt(){
@@ -319,13 +369,64 @@ const topics=r=>[r.topic,r.topic+"/meta",r.topic+"/last"];
 function connect(){
   for(const url of BROKERS){
     let c;try{c=window.mqtt.connect(url,{clientId:"mg_"+rid(10),clean:true,keepalive:30,reconnectPeriod:3000,connectTimeout:9000,protocolVersion:4})}catch(e){continue}
-    c.__up=false;
-    c.on("connect",()=>{c.__up=true;countUp();if(R){c.subscribe(topics(R),{qos:0});wentUp()}});
+    c.__up=false;c.__subs=new Set();
+    c.on("connect",()=>{c.__up=true;everUp=true;c.__subs=new Set();countUp();syncSubs();if(R)wentUp()});
     c.on("close",()=>{c.__up=false;countUp()});
     c.on("error",()=>{});
     c.on("message",(t,buf)=>onRaw(t,buf.toString()));
     clients.push(c);
   }
+}
+function wanted(){
+  const s=new Set();
+  if(R)for(const t of topics(R))s.add(t);
+  if(probe)for(const t of topics(probe.r))s.add(t);
+  for(const w of W.values())s.add(w.topic);
+  return s;
+}
+function syncSubs(){
+  const want=wanted();
+  for(const c of clients){
+    if(!c.__up)continue;
+    const add=[...want].filter(t=>!c.__subs.has(t)),rm=[...c.__subs].filter(t=>!want.has(t));
+    if(rm.length)try{c.unsubscribe(rm)}catch(e){}
+    if(add.length)try{c.subscribe(add,{qos:0})}catch(e){}
+    c.__subs=want;
+  }
+}
+let watchBusy=false,watchAgain=false;
+async function syncWatch(){
+  if(watchBusy){watchAgain=true;return}
+  watchBusy=true;
+  try{
+    const want=ls.get("mg.rooms",[]).slice(0,8).map(x=>x.code);
+    for(const[t,w]of W)if(!want.includes(w.code))W.delete(t);
+    for(const code of want){
+      if([...W.values()].some(w=>w.code===code))continue;
+      const tid=hex(await sha("chat-topic:"+code)).slice(0,24);
+      W.set(tid,{code,tid,topic:"chat1/"+tid,key:await deriveKey(code)});
+    }
+    syncSubs();
+  }finally{watchBusy=false;if(watchAgain){watchAgain=false;syncWatch()}}
+}
+function storedMeta(tid){const sm=ls.get("mg.m."+tid,null);try{return sm?normMeta(JSON.parse(sm.ms)):null}catch(e){return null}}
+async function onWatch(w,txt){
+  const s=await unseal(w.key,txt);if(!s||(R&&R.tid===w.tid))return;
+  let o;try{o=JSON.parse(s)}catch(e){return}
+  if(!o||o.t!=="m")return;
+  const m=normMsg(o);if(!m||m.u===me.id)return;
+  const meta=storedMeta(w.tid);
+  if(meta&&(meta.bans[m.u]||meta.bans[me.id]))return;
+  const now=Date.now();if(Math.abs(m.ts-now)>120000)m.ts=now;
+  const pin=ls.get("mg.pin."+w.tid,null);
+  if(pin&&m.sg)try{const k=await crypto.subtle.importKey("raw",unb64(pin),EC,false,["verify"]);m.ok=await crypto.subtle.verify(SG,k,unb64(m.sg),enc.encode(sigStr(m)))}catch(e){}
+  if(R&&R.tid===w.tid)return;
+  const h=ls.get("mg.h."+w.tid,[]);if(h.some(x=>x.id===m.id))return;
+  h.push({...strip(m),ok:m.ok});ls.set("mg.h."+w.tid,h.slice(-300));
+  const un=ls.get("mg.un",{});un[w.code]=(un[w.code]||0)+1;ls.set("mg.un",un);
+  if(!$("#home").hidden)renderRooms();
+  const name=(meta&&meta.name)||(ls.get("mg.rooms",[]).find(x=>x.code===w.code)||{}).name||"Room";
+  alertNew([m],true,{code:w.code,name});
 }
 function countUp(){up=clients.filter(c=>c.__up).length;if(R)renderHead()}
 function wentUp(){clearTimeout(upTimer);upTimer=setTimeout(()=>{const r=R;if(!r)return;sendP(r);askHistory(r);if(r.signKey&&r.metaRaw)pub(r,{t:"meta",...r.metaRaw},"/meta",true)},300)}
@@ -338,8 +439,12 @@ async function pub(r,obj,sub,retain){
 async function onRaw(topic,txt){
   if(seen.has(txt))return;
   if(probe&&topics(probe.r).includes(topic)){seen.set(txt,Date.now());probe.hit();return}
+  if(txt.length>200000)return;
   const r=R;
-  if(!r||!topics(r).includes(topic)||txt.length>200000)return;
+  if(!r||!topics(r).includes(topic)){
+    for(const w of W.values())if(w.topic===topic){seen.set(txt,Date.now());onWatch(w,txt);break}
+    return;
+  }
   seen.set(txt,Date.now());
   if(seen.size>3000){const cut=Date.now()-120000;for(const[k,t]of seen)if(t<cut)seen.delete(k)}
   const s=await unseal(r.key,txt);
@@ -396,9 +501,9 @@ async function waitUp(){for(let i=0;i<40&&!up;i++)await new Promise(r=>setTimeou
 function taken(r){
   return new Promise(res=>{
     let done=false;
-    const fin=v=>{if(done)return;done=true;probe=null;for(const c of clients)if(c.__up)try{c.unsubscribe(topics(r))}catch(e){}res(v)};
+    const fin=v=>{if(done)return;done=true;probe=null;syncSubs();res(v)};
     probe={r,hit:()=>fin(true)};
-    for(const c of clients)if(c.__up)c.subscribe(topics(r),{qos:0});
+    syncSubs();
     setTimeout(()=>pub(r,{t:"h?",rq:rid(8),since:0,u:me.id}),300);
     setTimeout(()=>fin(false),2500);
   });
@@ -430,19 +535,19 @@ async function createRoom(){
 }
 function openRoom(r){
   if(R&&R!==r)leaveRoom(true);
-  R=r;replyTo=null;remember(r);
-  for(const c of clients)if(c.__up)c.subscribe(topics(r),{qos:0});
+  R=r;r.openedAt=Date.now();replyTo=null;remember(r);
+  const un=ls.get("mg.un",{});if(un[r.code]){delete un[r.code];ls.set("mg.un",un)}
+  syncSubs();syncWatch();
   if(up)wentUp();
   $("#home").hidden=true;$("#room").hidden=false;
-  paint(true);renderReply();
+  paint(true);renderReply();renderNbar();
   if(matchMedia("(pointer:fine)").matches)$("#msg").focus();
 }
 function leaveRoom(quiet){
   const r=R;if(!r)return;
   sendP(r,false,true);
-  for(const c of clients)if(c.__up)try{c.unsubscribe(topics(r))}catch(e){}
   for(const t of r.hreq.values())clearTimeout(t);
-  R=null;
+  R=null;syncSubs();
   if(!quiet){ls.del("mg.last");showHome()}
 }
 function forgetRoom(){
@@ -451,14 +556,16 @@ function forgetRoom(){
   leaveRoom(true);
   for(const k of["mg.h.","mg.m.","mg.a."])ls.del(k+r.tid);
   ls.set("mg.rooms",ls.get("mg.rooms",[]).filter(x=>x.code!==r.code));ls.del("mg.last");
-  closeSheet();showHome();
+  closeSheet();showHome();syncWatch();
 }
 function showHome(){
   $("#room").hidden=true;$("#home").hidden=false;
-  $("#nm").value=me.name;renderCols();
-  const list=ls.get("mg.rooms",[]);
+  $("#nm").value=me.name;renderCols();renderRooms();
+}
+function renderRooms(){
+  const list=ls.get("mg.rooms",[]),un=ls.get("mg.un",{});
   $("#roomsbox").hidden=!list.length;
-  $("#rooms").innerHTML=list.map(x=>`<button data-a="room" data-code="${esc(x.code)}"><span>${esc(x.name)}</span><small>${esc(x.code)}</small></button>`).join("");
+  $("#rooms").innerHTML=list.map(x=>`<button data-a="room" data-code="${esc(x.code)}"><span class="rl"><i class="av" style="background:var(--c${[...x.code].reduce((a,c)=>a+c.charCodeAt(0),0)%NC})">${esc((x.name||"R").trim().charAt(0).toUpperCase())}</i><span>${esc(x.name)}</span>${un[x.code]?`<i class="badge">${un[x.code]>99?"99+":un[x.code]}</i>`:""}</span><small>code ${esc(x.code)}</small></button>`).join("");
 }
 function renderCols(){$("#cols").innerHTML=[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}
 function hnote(t){$("#hnote").textContent=t}
@@ -470,28 +577,29 @@ function renderHead(){
   const now=Date.now();
   for(const[u,p]of R.online)if(now-p.at>70000)R.online.delete(u);
   $("#rname").textContent=R.meta.name||"Room";
-  $("#rsub").textContent=!up?(clients.length?"connecting…":"offline, check your internet"):`${R.online.size+1} here`;
+  $("#rsub").textContent=!up?(!clients.length?"offline, check your internet":everUp?"reconnecting…":"connecting…"):`code ${R.code} · ${R.online.size+1} here`;
   const pin=$("#pin");pin.hidden=!R.meta.pin;pin.textContent=R.meta.pin?"📌 "+R.meta.pin:"";
 }
 function renderLog(stick){
   const r=R;if(!r)return;
   const log=$("#log"),list=shown(r),byId=new Map(list.map(m=>[m.id,m]));
-  if(!list.length){log.innerHTML=`<div class="empty">No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.</div>`;return}
+  if(!list.length){log.innerHTML=`<div class="empty">No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.<br><button class="btn wide" data-a="inv">Invite people</button><p class="hint">Tip: to reply, swipe a note to the right, hover it and click ↩ Reply, or tap it.</p></div>`;return}
   const nearB=stick||atBottom(),mention=new RegExp("@"+me.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
-  let h="",prev=null,day="";
+  let h="",prev=null,day="";const banned=isBanned();
   for(const m of list){
     const d=new Date(m.ts).toDateString();
     if(d!==day){day=d;h+=`<div class="day">${dayLabel(m.ts)}</div>`;prev=null}
     const mine=m.u===me.id,grp=prev&&prev.u===m.u&&m.ts-prev.ts<180000&&!m.r&&!m.g&&!prev.g;
-    const hd=grp?"":`<div class="hd"><b style="color:var(--c${m.c})">${esc(mine?"You":m.n)}</b>${m.ok?'<span class="adm">admin</span>':""}<time>${tm(m.ts)}</time></div>`;
+    const hd=grp?"":`<div class="hd"><i class="av ma" style="background:var(--c${m.c})">${esc((mine?me.name:m.n).charAt(0).toUpperCase()||"?")}</i><b style="color:var(--c${m.c})">${esc(mine?"You":m.n)}</b>${m.ok?'<span class="adm">admin</span>':""}<time>${tm(m.ts)}</time></div>`;
     let body="";
-    if(m.r){const q=byId.get(m.r);body+=`<div class="rq">↪ ${q?esc(q.n)+": "+esc(q.x||"game invite"):"a deleted note"}</div>`}
+    if(m.r){const q=byId.get(m.r);body+=`<div class="rq" data-a="jump" data-id="${m.r}">↪ ${q?esc(q.u===me.id?"You":q.n)+": "+esc(q.x||"game invite"):"a deleted note"}</div>`}
     if(m.g){
       const md=MODES[m.g.m],old=Date.now()-m.ts>45*60000;
       body+=`<div class="inv"><span class="e">${md.e}</span><div><b>${mine?"You":esc(m.n)} ${mine?"want":"wants"} to play ${esc(md.n)}</b><small>${old?"This invite is old":"Crashpot · tap to jump in"}</small></div>${old?"":`<button class="btn pri" data-a="play" data-id="${m.id}">${mine?"Open":"Join"}</button>`}</div>`;
     }
     if(m.x)body+=`<div class="tx">${esc(m.x)}</div>`;
-    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${!mine&&me.name&&mention.test(m.x)?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div></div>`;
+    const toMe=!mine&&((me.name&&mention.test(m.x))||(m.r&&byId.get(m.r)&&byId.get(m.r).u===me.id));
+    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${toMe?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div>${banned?"":`<button class="rb" data-a="rq" data-id="${m.id}" title="Reply">↩ Reply</button>`}</div>`;
     prev=m;
   }
   log.innerHTML=h;
@@ -511,7 +619,18 @@ function renderInput(){
 function renderReply(){
   const q=replyTo&&R&&R.msgs.get(replyTo);
   $("#replying").hidden=!q;
-  if(q)$("#replytx").textContent="Replying to "+q.n+": "+(q.x||"game invite").slice(0,60);
+  if(q)$("#replytx").textContent="↩ Replying to "+(q.u===me.id?"yourself":q.n)+": "+(q.x||"game invite").slice(0,60);
+}
+function startReply(id){
+  const m=R&&R.msgs.get(id);if(!m||isBanned())return;
+  replyTo=id;renderReply();
+  $("#msg").focus();
+}
+function jumpTo(id){
+  const el=[...document.querySelectorAll("#log .msg")].find(e=>e.dataset.id===id);
+  if(!el){toast("That note isn't here anymore");return}
+  el.scrollIntoView({block:"center",behavior:"smooth"});
+  el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1200);
 }
 function autosize(){const t=$("#msg");t.style.height="auto";t.style.height=Math.min(140,t.scrollHeight+2)+"px"}
 
@@ -544,33 +663,77 @@ function playInvite(id){
   window.open(gameUrl(m.g.c,m.g.m,m.u===me.id),"_blank","noopener");
 }
 
-function alertNew(m,nearBottom){
+const canNotify=()=>"Notification" in window;
+const notifOn=()=>S.notif&&canNotify()&&Notification.permission==="granted";
+const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function alertNew(list,nearBottom,other){
+  if(!list.length)return;
   if(S.sound)tick();
   if(S.buzz&&navigator.vibrate)try{navigator.vibrate(25)}catch(e){}
   if(document.hidden||decoyOn||!document.hasFocus()){
-    unseen++;setFav();
-    if(S.notif)sysNotify(m);
-  }else if(!nearBottom)$("#newchip").hidden=false;
+    unseen+=list.length;setFav();
+    if(notifOn()&&(!other||S.others))sysNotify(list[list.length-1],other);
+  }else if(other)toast("New note in "+other.name);
+  else if(!nearBottom)$("#newchip").hidden=false;
 }
-async function sysNotify(m){
-  if(!("Notification" in window)||Notification.permission!=="granted")return;
-  const title=S.peek?(R.meta.name||"Room"):S.title;
+let iconUrl=null;
+function noteIcon(){
+  if(iconUrl)return iconUrl;
+  try{const c=document.createElement("canvas");c.width=c.height=192;drawDoc(c.getContext("2d"),3);iconUrl=c.toDataURL("image/png")}catch(e){iconUrl="icon.svg"}
+  return iconUrl;
+}
+async function showN(title,opt){
+  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg&&reg.active){await reg.showNotification(title,opt);return true}}catch(e){}
+  try{const n=new Notification(title,opt);n.onclick=()=>{window.focus();n.close();openFromNotif(opt.data&&opt.data.code)};return true}catch(e){return false}
+}
+function sysNotify(m,other){
+  const room=other?other.name:(R&&R.meta.name)||"Room",code=other?other.code:R&&R.code;
+  const title=S.peek?room:S.title;
   const body=S.peek?m.n+": "+(m.g?"wants to play "+MODES[m.g.m].n:m.x):unseen>1?unseen+" new notes":"1 new note";
-  const opt={body,tag:"mg",renotify:true,icon:"icon.svg",silent:!S.sound};
-  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg){await reg.showNotification(title,opt);return}}catch(e){}
-  try{const n=new Notification(title,opt);n.onclick=()=>{window.focus();n.close()}}catch(e){}
+  return showN(title,{body,tag:"mg",renotify:true,icon:noteIcon(),data:{code:code||null}});
 }
-async function clearNotifs(){
-  unseen=0;setFav();
-  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)for(const n of await reg.getNotifications({tag:"mg"}))n.close()}catch(e){}
+function openFromNotif(code){
+  code=normCode(code);
+  if(code&&(!R||R.code!==code)&&me.name)enterRoom(code);
+}
+async function turnOnNotifs(){
+  if(!canNotify()){toast(isIOS()?"On iPhone: tap Share, then Add to Home Screen, and open it from there":"This browser can't show notifications",4000);return false}
+  let p=Notification.permission;
+  if(p==="default")try{p=await Notification.requestPermission()}catch(e){p="denied"}
+  if(p!=="granted"){S.notif=false;saveS();renderNbar();toast(p==="denied"?"Your browser blocked notifications. Allow them in the site settings (the icon left of the web address), then reload.":"Notifications weren't allowed. Try again and pick Allow.",5000);return false}
+  S.notif=true;saveS();renderNbar();toast("Notifications are on");return true;
+}
+async function testNotif(){
+  if(!notifOn()&&!await turnOnNotifs())return;
+  const ok=await showN(S.peek?(R&&R.meta.name)||"Room":S.title,{body:S.peek?"This is what a new note looks like":"1 new note",tag:"mg-test",icon:noteIcon(),data:{code:null}});
+  toast(ok?"Sent! Nothing showed up? Check Do Not Disturb or Focus, and your computer's notification settings for this browser.":"Couldn't show a notification in this browser",6000);
+}
+function nbarText(){
+  if(!canNotify())return isIOS()&&!standalone()?"On iPhone, add this page to your Home Screen (Share → Add to Home Screen) to get notifications.":"";
+  if(notifOn()||Notification.permission==="denied")return"";
+  return"Get a notification when someone writes, even when this tab is in the background.";
+}
+function renderNbar(){
+  const t=nbarText(),show=!!t&&!!R&&!ls.get("mg.nbx",false);
+  $("#nbar").hidden=!show;
+  if(show){$("#nbtx").textContent=t;$("#nbon").hidden=!canNotify()}
+}
+function notifStatus(){
+  if(!canNotify())return isIOS()&&!standalone()?"📵 Not available in Safari tabs. Tap Share → Add to Home Screen, then open Chat from your Home Screen.":"📵 This browser can't show notifications.";
+  if(Notification.permission==="denied")return"⚠️ Blocked by your browser. Click the icon left of the web address, set Notifications to Allow, then reload this page.";
+  return notifOn()?"✅ On. You'll get one while this page is open in any tab, even a background one. If you close every tab, they stop.":"🔕 Off. Turn it on below.";
 }
 let actx=null;
 function tick(){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.04,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.12);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.13)}catch(e){}}
-function setFav(){
-  const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");
-  const box=(a,b,w,h,rad)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,w,h,rad);else x.rect(a,b,w,h);x.fill()};
+function drawDoc(x,k){
+  const box=(a,b,w,h,rad)=>{x.beginPath();if(x.roundRect)x.roundRect(a*k,b*k,w*k,h*k,rad*k);else x.rect(a*k,b*k,w*k,h*k);x.fill()};
   x.fillStyle="#5b7fbf";box(10,4,44,56,6);
   x.fillStyle="#fff";for(const[y,w]of[[18,28],[28,28],[38,20]])box(18,y,w,4,2);
+}
+function setFav(){
+  const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");
+  drawDoc(x,1);
   if(unseen){x.fillStyle="#d93025";x.beginPath();x.arc(50,14,11,0,7);x.fill()}
   $("#fav").href=c.toDataURL();
   document.title=S.title;
@@ -585,10 +748,32 @@ let dkTaps=[];
 $("#dkname").addEventListener("click",()=>{const n=Date.now();dkTaps=dkTaps.filter(t=>n-t<900);dkTaps.push(n);if(dkTaps.length>=3){dkTaps=[];hide(false)}});
 $("#dkdate").textContent=new Date().toLocaleDateString([],{weekday:"long",month:"long",day:"numeric",year:"numeric"});
 
-function openSheet(kind,arg){sheetKind=kind;sheetArg=arg;$("#sheet").hidden=false;renderSheet()}
-function closeSheet(){sheetKind=null;sheetArg=null;$("#sheet").hidden=true}
+function openSheet(kind,arg){sheetKind=kind;sheetArg=arg;$("#sheet").hidden=false;renderSheet();$("#card").scrollTop=0}
 function renderSheet(){
-  const r=R,c=$("#card");if(!r||!sheetKind){closeSheet();return}
+  drawSheet();
+  const c=$("#card"),h=sheetKind&&c.querySelector(":scope>h2");
+  if(!h)return;
+  const w=document.createElement("div");w.className="shd";h.replaceWith(w);w.append(h);
+  w.insertAdjacentHTML("beforeend",'<button class="x" data-a="close" aria-label="Close">✕</button>');
+  c.insertAdjacentHTML("afterbegin",'<div class="grab"></div>');
+}
+function closeSheet(){sheetKind=null;sheetArg=null;$("#sheet").hidden=true}
+function drawSheet(){
+  const r=R,c=$("#card");
+  if(sheetKind==="help"){
+    c.innerHTML=`<h2>How it works</h2><ol class="help">
+    <li><b>Pick a name</b> and a color. That's what others see.</li>
+    <li><b>Join or start a room.</b> Every room has a code like <i>pizza</i> or <i>482</i>. Anyone with the code can come in, so only share it with friends.</li>
+    <li><b>Write.</b> Enter sends, Shift+Enter makes a new line. To reply, swipe a note to the right (phone) or hover it and click <b>↩ Reply</b> (computer). Tap a quote to jump to the note it answers. Tap any note to copy it. Type @name to mention someone.</li>
+    <li><b>Hide fast.</b> Press <b>Esc</b> or tap <b>Hide</b> and the screen turns into a fake study page. Press <b>Esc</b> again, or tap the page title 3 times, to come back.</li>
+    <li><b>Get notified.</b> Turn on notifications in Settings. They work while this page is open in any tab, even in the background, for all your recent rooms. Close the tab and they stop.</li>
+    <li><b>Play together.</b> Tap <b>Play</b>, pick a game, and everyone gets a Join button.</li>
+    <li><b>Admin.</b> Whoever starts a room is its admin: they can rename it, pin a note, delete notes and remove people.</li></ol>
+    <p class="hint">Notes are encrypted with the room code before they leave your device.</p>
+    <button class="btn pri wide" data-a="close">Got it</button>`;
+    return;
+  }
+  if(!r||!sheetKind){closeSheet();return}
   const adm=!!r.signKey;
   if(sheetKind==="game"){
     c.innerHTML=`<h2>Wanna play?</h2><p class="hint">Pick a game. Everyone here gets an invite, and the game opens in a new tab.</p><div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
@@ -609,12 +794,16 @@ function renderSheet(){
     c.innerHTML=`<h2>Settings</h2>
     <h3>Room</h3><button class="btn wide" data-a="inv">Invite people / show code</button>
     <h3>You</h3><input id="snm" class="in" maxlength="16" value="${esc(me.name)}" placeholder="Your name"><div class="cols" id="scols">${[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}</div>
-    <h3>Alerts</h3>
-    ${notifOk?tg("notif","Notifications","When this tab is in the background"):`<p class="hint">On iPhone, tap Share → Add to Home Screen, then open it from there to get notifications.</p>`}
-    ${tg("peek","Show who and what","Off = it only says “1 new note”")}
-    ${tg("sound","Sound","A tiny tick on new notes")}
+    <h3>Notifications</h3>
+    <p class="hint st">${notifStatus()}</p>
+    ${notifOk&&Notification.permission!=="denied"?`<label class="tg"><span>Notify me about new notes<small>When you're in another tab or window</small></span><input type="checkbox" data-s="notif" ${notifOn()?"checked":""}></label>
+    ${tg("others","Include my other rooms","Not just the room you have open")}
+    ${tg("peek","Show who and what","Off: it only says “1 new note”, so nobody can read it over your shoulder")}
+    <button class="btn wide" data-a="testn">Send me a test notification</button>`:""}
+    <h3>Sounds</h3>
+    ${tg("sound","Sound","A soft tick when a note comes in")}
     ${tg("buzz","Vibrate","On phones that support it")}
-    <h3>Stealth</h3>
+    <h3>Hiding</h3>
     <label class="tg"><span>Look</span><select data-s="theme"><option value="doc" ${S.theme==="doc"?"selected":""}>Plain document</option><option value="dark" ${S.theme==="dark"?"selected":""}>Dark chat</option></select></label>
     <label class="tg"><span>Tab name</span><select data-s="title">${TITLES.map(t=>`<option ${S.title===t?"selected":""}>${esc(t)}</option>`).join("")}</select></label>
     ${tg("autohide","Hide when I switch away","Shows the fake notes page when you come back")}
@@ -627,11 +816,12 @@ function renderSheet(){
     <button class="btn wide" data-a="copyadm">Copy admin link</button>
     <p class="hint">The admin link makes you admin on another device. Keep it secret.</p>`:""}
     <h3>Leave</h3><button class="btn wide bad" data-a="forget">Leave and forget this room</button>
+    <button class="btn wide" data-a="help">How does this work?</button>
     <button class="btn wide" data-a="close">Done</button>`;
   }
 }
 
-function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),1600)}
+function toast(t,ms){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),ms||1800)}
 async function copy(t,msg){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();try{document.execCommand("copy")}catch(_){}a.remove()}toast(msg||"Copied")}
 const baseUrl=()=>location.origin+location.pathname;
 const inviteUrl=r=>baseUrl()+"#j="+r.code;
@@ -662,7 +852,9 @@ document.addEventListener("click",e=>{
   else if(a==="play")playInvite(b.dataset.id);
   else if(a==="bottom"){const l=$("#log");l.scrollTop=l.scrollHeight;b.hidden=true}
   else if(a==="unreply"){replyTo=null;renderReply()}
-  else if(a==="reply"){replyTo=sheetArg;closeSheet();renderReply();$("#msg").focus()}
+  else if(a==="reply"){const id=sheetArg;closeSheet();startReply(id)}
+  else if(a==="rq")startReply(b.dataset.id);
+  else if(a==="jump")jumpTo(b.dataset.id);
   else if(a==="copy"){const m=R&&R.msgs.get(sheetArg);if(m)copy(m.x);closeSheet()}
   else if(a==="del"){if(R)setMeta({del:[...R.meta.del,sheetArg].slice(-400)});closeSheet()}
   else if(a==="ban"){if(R&&confirm("Remove "+b.dataset.n+" from this room?"))setMeta({bans:{...R.meta.bans,[b.dataset.u]:b.dataset.n}});if(sheetKind==="msg")closeSheet()}
@@ -673,29 +865,51 @@ document.addEventListener("click",e=>{
   else if(a==="savemeta"){setMeta({name:clean($("#srn").value,30)||R.meta.name,pin:cleanText($("#spin").value).slice(0,200)});toast("Saved");closeSheet()}
   else if(a==="clear"){if(R&&confirm("Clear the chat for everyone?"))setMeta({clr:Date.now(),del:[]});closeSheet()}
   else if(a==="forget")forgetRoom();
+  else if(a==="help")openSheet("help");
+  else if(a==="notifon")turnOnNotifs();
+  else if(a==="nbx"){ls.set("mg.nbx",true);renderNbar()}
+  else if(a==="testn")testNotif();
 });
 document.addEventListener("change",async e=>{
   const k=e.target.dataset&&e.target.dataset.s;
   if(e.target.id==="snm"){setName(e.target.value);e.target.value=me.name;return}
   if(!k)return;
-  if(e.target.type==="checkbox"){
-    S[k]=e.target.checked;
-    if(k==="notif"&&S.notif){
-      try{if(Notification.permission!=="granted"&&await Notification.requestPermission()!=="granted"){S.notif=false;e.target.checked=false;toast("Notifications are blocked in your browser settings")}}catch(err){S.notif=false;e.target.checked=false}
-    }
-  }else S[k]=e.target.value;
+  if(k==="notif"){
+    if(e.target.checked)await turnOnNotifs();else{S.notif=false;saveS();renderNbar()}
+    if(sheetKind==="set")renderSheet();
+    return;
+  }
+  if(e.target.type==="checkbox")S[k]=e.target.checked;
+  else S[k]=e.target.value;
   saveS();applyTheme();
 });
 $("#nm").addEventListener("input",e=>{const n=clean(e.target.value,16);if(n){me.name=n;saveMe();hnote("")}});
 $("#jc").addEventListener("keydown",e=>{if(e.key==="Enter")enterRoom(e.target.value,pendingAdm)});
+$("#nc").addEventListener("keydown",e=>{if(e.key==="Enter")createRoom()});
+$("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"){if($("#jc").value.trim())enterRoom($("#jc").value,pendingAdm);else $("#jc").focus()}});
 $("#send").addEventListener("submit",e=>{e.preventDefault();sendMsg()});
 $("#msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendMsg()}});
 $("#msg").addEventListener("input",()=>{autosize();typing()});
 $("#log").addEventListener("scroll",()=>{if(atBottom())$("#newchip").hidden=true});
+let sw=null;
+$("#log").addEventListener("touchstart",e=>{const m=e.target.closest(".msg");sw=m&&e.touches.length===1?{m,x:e.touches[0].clientX,y:e.touches[0].clientY,dx:0,lock:null}:null},{passive:true});
+$("#log").addEventListener("touchmove",e=>{
+  if(!sw)return;
+  const dx=e.touches[0].clientX-sw.x,dy=e.touches[0].clientY-sw.y;
+  if(sw.lock===null&&(Math.abs(dx)>8||Math.abs(dy)>8))sw.lock=Math.abs(dx)>Math.abs(dy)&&dx>0;
+  if(!sw.lock)return;
+  sw.dx=Math.max(0,Math.min(80,dx));sw.m.classList.add("swipe");sw.m.style.transform=`translateX(${sw.dx}px)`;
+},{passive:true});
+$("#log").addEventListener("touchend",()=>{
+  if(!sw)return;
+  const{m,dx}=sw;sw=null;
+  m.classList.remove("swipe");m.style.transition="transform .15s";m.style.transform="";setTimeout(()=>m.style.transition="",160);
+  if(dx>=60){if(navigator.vibrate)try{navigator.vibrate(10)}catch(e){}startReply(m.dataset.id)}
+});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();hide(!decoyOn)}});
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){if(S.autohide&&R)hide(true)}
-  else{if(R)sendP(R,true);if(!decoyOn)clearNotifs()}
+  else{if(R)sendP(R,true);if(!decoyOn)clearNotifs();renderNbar();if(!$("#home").hidden)renderRooms()}
 });
 window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
 window.addEventListener("pagehide",()=>{if(R)sendP(R,false,true)});
@@ -704,7 +918,11 @@ setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")rende
 
 (async()=>{
   applyTheme();
-  if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+    navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.open)openFromNotif(e.data.open)});
+    try{navigator.serviceWorker.startMessages()}catch(e){}
+  }
   const h=new URLSearchParams(location.hash.slice(1));
   const j=h.get("j"),adm=h.get("a");
   if(j)try{history.replaceState(null,"",baseUrl()+location.search)}catch(e){}
@@ -714,7 +932,7 @@ setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")rende
   const target=j||ls.get("mg.last",null);
   if(target&&me.name)await enterRoom(target,admJwk);
   else if(j){hnote("Pick a name, then tap Join.");$("#nm").focus();pendingAdm=admJwk}
-  if(await loadMqtt())connect();else if(R)renderHead();
+  if(await loadMqtt()){connect();syncWatch()}else if(R)renderHead();
 })();
 </script>
 </body>

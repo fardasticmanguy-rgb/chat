@@ -5,13 +5,16 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 ## How it works
 
 1. Open the page and type your name.
-2. Type a code (like `pizza` or `42`) or leave it empty for a random 3-digit one, then tap **Start a room**. You're the admin.
-3. Friends type the code under **Join** (or open the invite link) and they're in.
+2. Got a code from a friend? Type it under **Join a room**. Or start your own: type a code (like `pizza` or `42`) or leave it empty for a random 3-digit one, then tap **Start**. You're the admin.
+3. Tap the room name at the top any time to see the code and copy an invite link.
+4. Not sure? Tap **How does this work?** on the home screen or in Settings.
 
 ## Features
 
 - **Set your name and color**
-- **Notifications** when the tab is in the background. By default they only say "1 new note", not who or what
+- **Notifications** when the tab is in the background, for the room you have open and your other recent rooms. A banner in the room turns them on with one tap, and Settings shows if they're blocked and has a **Send me a test notification** button. By default they only say "1 new note", not who or what. Notes you missed while the connection dropped still get a notification when it's back
+- **Unread badges** on your rooms on the home screen
+- **Replies**: swipe a note to the right (phone), hover it and click **↩ Reply** (computer), or tap it. Tap a quote to jump to the original note. Replies to you are highlighted
 - **Hide**: press `Esc` (or tap Hide) and the screen turns into a fake notes page. Press `Esc` again, or tap the page title 3 times, to come back
 - **Hide when I switch away**: optional, shows the fake page whenever you come back to the tab
 - **Tab name** can be "Notes", "Untitled document", "Homework" and more
@@ -19,7 +22,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 - **Wanna play?**: tap Play, pick a Crashpot game, and everyone gets a Join button that drops them in the same lobby
 - **Admin**: rename the room, pin a note, delete messages, remove people, clear the chat. The admin's notes get an "admin" tag nobody else can fake
 - **Admin link** to be admin on another device
-- Replies, @mentions, typing indicator, who's here
+- @mentions, typing indicator, who's here
 
 ## Privacy
 
@@ -30,5 +33,6 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 
 ## Notes
 
-- Notifications only work while the page is open in a tab (it can be in the background). On iPhone, add it to your Home Screen first.
+- Notifications only work while the page is open in a tab (it can be in the background). Close every tab and they stop, because there's no server to send them. On iPhone, add it to your Home Screen first.
+- No notification showing up? Check that your browser allows notifications for the site, and that Do Not Disturb or Focus is off.
 - It uses free public MQTT relays, the same ones Crashpot uses. No server or account needed. Host it on GitHub Pages.
