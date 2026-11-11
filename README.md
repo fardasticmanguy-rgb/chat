@@ -13,6 +13,8 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 
 - **Set your name and color**
 - **Notifications** when the tab is in the background, for the room you have open and your other recent rooms. A banner in the room turns them on with one tap, and Settings shows if they're blocked and has a **Send me a test notification** button. By default they only say "1 new note", not who or what. Notes you missed while the connection dropped still get a notification when it's back
+- **Notifications when Chat is closed** with the free [ntfy](https://ntfy.sh) app: Settings → "When Chat is closed", subscribe in ntfy and flip the switch. Friends' Chat sends a "1 new note" ping (no names, no text) when you're not there
+- **Egyptian Arabic explanations**: tap "اشرحلي بالمصري" on the home screen, in Settings or in the guide
 - **Unread badges** on your rooms on the home screen
 - **Replies**: swipe a note to the right (phone), hover it and click **↩ Reply** (computer), or tap it. Tap a quote to jump to the original note. Replies to you are highlighted
 - **Hide**: press `Esc` (or tap Hide) and the screen turns into a fake notes page. Press `Esc` again, or tap the page title 3 times, to come back
@@ -33,6 +35,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 
 ## Notes
 
-- Notifications only work while the page is open in a tab (it can be in the background). Close every tab and they stop, because there's no server to send them. On iPhone, add it to your Home Screen first.
+- Browser notifications only work while the page is open in a tab (it can be in the background). For notifications with Chat closed, use the ntfy option. On iPhone, add it to your Home Screen first for browser notifications.
+- ntfy topics are public, so anyone who guesses one could see that a ping happened, but never who wrote or what. The topic is made from the room code.
 - No notification showing up? Check that your browser allows notifications for the site, and that Do Not Disturb or Focus is off.
 - It uses free public MQTT relays, the same ones Crashpot uses. No server or account needed. Host it on GitHub Pages.
