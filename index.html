@@ -107,6 +107,16 @@ body.dark .msg .av.ma{display:none}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:-6px auto 12px}
 @media (min-width:700px){.grab{display:none}}
 .tb{font-weight:500}
+[dir=rtl]{text-align:right;line-height:1.7}
+.ar{display:block}
+.empty .ar{text-align:center}
+.help[dir=rtl]{padding-left:0;padding-right:22px}
+.lang{display:block;margin:10px auto 0;border:0;background:none;color:var(--acc);font-size:14px;text-decoration:underline}
+.steps{padding-left:20px;margin:10px 0}
+.steps[dir=rtl]{padding-left:0;padding-right:22px}
+.steps li{margin:0 0 8px}
+a.btn{display:block;text-align:center;text-decoration:none;color:inherit}
+a.btn.pri{color:var(--page)}
 .mention{background:color-mix(in srgb,var(--acc) 12%,transparent)}
 body.dark .msg{padding:0;margin:0;background:none;border-radius:14px}
 body.dark .msg .body{display:inline-block;max-width:85%;background:var(--soft);border-radius:14px;padding:6px 12px;margin:1px 0}
@@ -177,23 +187,24 @@ body.dark .msg .hd{padding:0 4px}
   <section id="home" class="scr">
     <div class="wrap">
       <div class="brand"><div class="dk-ic"></div><h1>Chat</h1></div>
-      <p class="lead">Chat with your class. It looks like a plain document, and <b>Esc</b> hides it in a flash.</p>
+      <p class="lead" id="hlead"></p>
       <label class="f" for="nm">Your name</label>
       <input id="nm" class="in" maxlength="16" autocomplete="off" enterkeyhint="next" placeholder="What should people call you?">
       <div id="cols" class="cols"></div>
       <div class="box">
         <h3>Join a room</h3>
-        <p class="hint">Got a code from a friend? Type it here.</p>
+        <p class="hint" id="hjoin"></p>
         <div class="row"><input id="jc" class="in" maxlength="20" placeholder="Code, like pizza or 482" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"><button class="btn pri" data-a="join">Join</button></div>
       </div>
       <div class="box">
         <h3>Or start your own</h3>
-        <p class="hint">You'll be the admin and get a code to share. Leave it empty for a random number.</p>
+        <p class="hint" id="hstart"></p>
         <div class="row"><input id="nc" class="in" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="Your own code (optional)"><button class="btn" data-a="create">Start</button></div>
       </div>
       <p id="hnote" class="note"></p>
       <div id="roomsbox" hidden><h3>Your rooms</h3><div id="rooms" class="rooms"></div></div>
       <button class="btn wide" data-a="help">How does this work?</button>
+      <button class="lang" data-a="lang" id="hlang"></button>
     </div>
   </section>
 
@@ -254,7 +265,7 @@ if(!IDRE.test(me.id))me.id=rid(12);
 me.col=Math.abs(me.col|0)%NC;
 const saveMe=()=>ls.set("mg.me",me);
 saveMe();
-const DEF={theme:"doc",notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
+const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
 
@@ -270,7 +281,7 @@ async function unseal(key,t){try{const[a,b]=t.split(".");if(!b)return null;retur
 
 async function makeRoom(code){
   const tid=hex(await sha("chat-topic:"+code)).slice(0,24);
-  const r={code,tid,key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
+  const r={code,tid,nt:"nts"+hex(await sha("ntfy:"+code)).slice(0,22),key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
   const pin=ls.get("mg.pin."+tid,null);if(pin)try{r.pubKey=await crypto.subtle.importKey("raw",unb64(pin),EC,false,["verify"]);r.pub=pin}catch(e){}
   const jwk=ls.get("mg.a."+tid,null);if(jwk)await setAdmin(r,jwk);
   const sm=ls.get("mg.m."+tid,null);if(sm)await acceptMeta(r,sm.ms,sm.sig);
@@ -457,6 +468,7 @@ async function handle(r,o){
   if(o.t==="m"){const m=normMsg(o);if(m)await addMsgs(r,[m],true)}
   else if(o.t==="p"){
     if(typeof o.u!=="string"||!IDRE.test(o.u)||o.u===me.id||r.meta.bans[o.u])return;
+    noteNt(r,o.u,!!o.nt);
     if(o.bye)r.online.delete(o.u);else{const fresh=!r.online.has(o.u);r.online.set(o.u,{n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,at:now});if(fresh&&!o.re)setTimeout(()=>sendP(r,true),300+Math.random()*900)}
     renderHead();if(sheetKind==="people")renderSheet();
   }
@@ -475,7 +487,20 @@ async function handle(r,o){
   }
   else if(o.t==="meta")await acceptMeta(r,o.ms,o.sig);
 }
-function sendP(r,re,bye){if(r&&!isBanned())pub(r,{t:"p",u:me.id,n:me.name,c:me.col,re:re?1:0,bye:bye?1:0})}
+function sendP(r,re,bye){if(r&&!isBanned())pub(r,{t:"p",u:me.id,n:me.name,c:me.col,re:re?1:0,bye:bye?1:0,nt:ntOn(r)?1:0})}
+const ntOn=r=>!!(r&&ls.get("mg.nt."+r.tid,false));
+function noteNt(r,u,on){
+  const k="mg.ns."+r.tid,m=ls.get(k,{});
+  if(on){if(Date.now()-(m[u]||0)<3600000)return;m[u]=Date.now()}else if(m[u])delete m[u];else return;
+  ls.set(k,m);
+}
+function ntfyPing(r){
+  const subs=ls.get("mg.ns."+r.tid,{}),now=Date.now();
+  const away=Object.entries(subs).some(([u,t])=>u!==me.id&&now-t<30*864e5&&!r.online.has(u)&&!r.meta.bans[u]);
+  if(!away||now-(r.lastNt||0)<45000)return;
+  r.lastNt=now;
+  try{fetch("https://ntfy.sh/"+r.nt+"?title="+encodeURIComponent("Notes")+"&tags=memo&click="+encodeURIComponent(baseUrl()),{method:"POST",body:"1 new note",mode:"no-cors",keepalive:true}).catch(()=>{})}catch(e){}
+}
 function askHistory(r){const s=sorted(r);pub(r,{t:"h?",rq:rid(8),since:s.length?s[s.length-1].ts:0,u:me.id})}
 function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:shown(r).slice(-40).map(strip),...(r.metaRaw||{})},"/last",true),delay??1500)}
 
@@ -559,6 +584,7 @@ function forgetRoom(){
   closeSheet();showHome();syncWatch();
 }
 function showHome(){
+  renderHomeText();
   $("#room").hidden=true;$("#home").hidden=false;
   $("#nm").value=me.name;renderCols();renderRooms();
 }
@@ -583,7 +609,7 @@ function renderHead(){
 function renderLog(stick){
   const r=R;if(!r)return;
   const log=$("#log"),list=shown(r),byId=new Map(list.map(m=>[m.id,m]));
-  if(!list.length){log.innerHTML=`<div class="empty">No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.<br><button class="btn wide" data-a="inv">Invite people</button><p class="hint">Tip: to reply, swipe a note to the right, hover it and click ↩ Reply, or tap it.</p></div>`;return}
+  if(!list.length){log.innerHTML=`<div class="empty">${TH(`No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.`,`مفيش رسايل لسه.<br>ابعت الكود <b dir="ltr">${esc(r.code)}</b> لصحابك عشان يدخلوا.`)}<br><button class="btn wide" data-a="inv">Invite people</button><p class="hint">${TH("Tip: to reply, swipe a note to the right, hover it and click ↩ Reply, or tap it.","عشان ترد: اسحب الرسالة ناحية اليمين، أو قف عليها بالماوس ودوس ↩ Reply، أو دوس عليها.")}</p></div>`;return}
   const nearB=stick||atBottom(),mention=new RegExp("@"+me.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
   let h="",prev=null,day="";const banned=isBanned();
   for(const m of list){
@@ -646,7 +672,7 @@ async function sendMsg(extra){
   if(!extra){t.value="";autosize();replyTo=null;renderReply()}
   pub(r,{t:"m",...m});
   await addMsgs(r,[normMsg(m)],false);
-  paint(true);pushLast(r);
+  paint(true);pushLast(r);ntfyPing(r);
 }
 function typing(){const r=R,now=Date.now();if(!r||now-lastTyping<3000||!$("#msg").value.trim())return;lastTyping=now;pub(r,{t:"ty",u:me.id,n:me.name})}
 
@@ -710,19 +736,27 @@ async function testNotif(){
   toast(ok?"Sent! Nothing showed up? Check Do Not Disturb or Focus, and your computer's notification settings for this browser.":"Couldn't show a notification in this browser",6000);
 }
 function nbarText(){
-  if(!canNotify())return isIOS()&&!standalone()?"On iPhone, add this page to your Home Screen (Share → Add to Home Screen) to get notifications.":"";
+  if(!canNotify())return isIOS()&&!standalone()?T("On iPhone, add this page to your Home Screen (Share → Add to Home Screen) to get notifications.","على الآيفون: دوس Share وبعدين Add to Home Screen عشان توصلك إشعارات."):"";
   if(notifOn()||Notification.permission==="denied")return"";
-  return"Get a notification when someone writes, even when this tab is in the background.";
+  return T("Get a notification when someone writes, even when this tab is in the background.","شغّل الإشعارات عشان تعرف لما حد يكتب، حتى لو التاب في الخلفية.");
 }
 function renderNbar(){
   const t=nbarText(),show=!!t&&!!R&&!ls.get("mg.nbx",false);
   $("#nbar").hidden=!show;
-  if(show){$("#nbtx").textContent=t;$("#nbon").hidden=!canNotify()}
+  if(show){$("#nbtx").textContent=t;$("#nbtx").dir=S.ar?"rtl":"";$("#nbon").hidden=!canNotify()}
 }
 function notifStatus(){
-  if(!canNotify())return isIOS()&&!standalone()?"📵 Not available in Safari tabs. Tap Share → Add to Home Screen, then open Chat from your Home Screen.":"📵 This browser can't show notifications.";
-  if(Notification.permission==="denied")return"⚠️ Blocked by your browser. Click the icon left of the web address, set Notifications to Allow, then reload this page.";
-  return notifOn()?"✅ On. You'll get one while this page is open in any tab, even a background one. If you close every tab, they stop.":"🔕 Off. Turn it on below.";
+  if(!canNotify())return isIOS()&&!standalone()?TH("📵 Not available in Safari tabs. Tap Share → Add to Home Screen, then open Chat from your Home Screen.","📵 مش شغالة في Safari. دوس Share ثم Add to Home Screen، وافتح Chat من الشاشة الرئيسية."):TH("📵 This browser can't show notifications.","📵 المتصفح ده مبيدعمش الإشعارات.");
+  if(Notification.permission==="denied")return TH("⚠️ Blocked by your browser. Click the icon left of the web address, set Notifications to Allow, then reload this page.","⚠️ المتصفح قافل الإشعارات. دوس على الأيقونة اللي جنب اللينك فوق، خلّي Notifications على Allow، وبعدين اعمل ريفرش.");
+  return notifOn()?TH("✅ On while this page is open in any tab, even a background one. Want them when Chat is closed too? Use the ntfy app below.","✅ شغالة طول ما الصفحة مفتوحة في أي تاب، حتى لو في الخلفية. عايزها كمان وChat مقفول؟ استخدم تطبيق ntfy تحت."):TH("🔕 Off. Turn it on below.","🔕 مقفولة. شغّلها من تحت.");
+}
+const T=(en,ar)=>S.ar?ar:en;
+const TH=(en,ar)=>S.ar?`<span class="ar" dir="rtl" lang="ar-EG">${ar}</span>`:en;
+function renderHomeText(){
+  $("#hlead").innerHTML=TH("Chat with your class. It looks like a plain document, and <b>Esc</b> hides it in a flash.","دردش مع زمايلك. شكله زي ورقة مذاكرة عادية، ولو دوست <b>Esc</b> بيستخبى في ثانية.");
+  $("#hjoin").innerHTML=TH("Got a code from a friend? Type it here.","معاك كود من صاحبك؟ اكتبه هنا ودوس Join.");
+  $("#hstart").innerHTML=TH("You'll be the admin and get a code to share. Leave it empty for a random number.","هتبقى انت الأدمن وهتاخد كود تبعته لصحابك. سيبه فاضي لو عايز رقم عشوائي، ودوس Start.");
+  $("#hlang").textContent=S.ar?"Explain in English":"اشرحلي بالمصري";
 }
 let actx=null;
 function tick(){try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.setValueAtTime(.04,actx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+.12);o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+.13)}catch(e){}}
@@ -760,25 +794,58 @@ function renderSheet(){
 function closeSheet(){sheetKind=null;sheetArg=null;$("#sheet").hidden=true}
 function drawSheet(){
   const r=R,c=$("#card");
+  if(sheetKind==="help"&&S.ar){
+    c.innerHTML=`<h2>إزاي بيشتغل</h2><ol class="help" dir="rtl" lang="ar-EG">
+    <li><b>اختار اسم ولون.</b> ده اللي الناس هتشوفه.</li>
+    <li><b>ادخل أوضة أو اعمل واحدة.</b> كل أوضة ليها كود زي <i>pizza</i> أو <i>482</i>. أي حد معاه الكود يقدر يدخل، فابعته لصحابك بس.</li>
+    <li><b>اكتب.</b> Enter بيبعت، وShift+Enter بيعمل سطر جديد. عشان ترد: اسحب الرسالة ناحية اليمين (موبايل) أو قف عليها ودوس <b>↩ Reply</b> (كمبيوتر). دوس على الاقتباس عشان تروح للرسالة الأصلية. دوس على أي رسالة عشان تنسخها. اكتب @الاسم عشان تنادي حد.</li>
+    <li><b>استخبى بسرعة.</b> دوس <b>Esc</b> أو <b>Hide</b> والشاشة تتقلب لصفحة مذاكرة مزيفة. دوس <b>Esc</b> تاني، أو دوس على عنوان الصفحة 3 مرات، عشان ترجع.</li>
+    <li><b>الإشعارات.</b> شغّلها من Settings. بتشتغل طول ما الصفحة مفتوحة في أي تاب، لكل أوضك الأخيرة. عايزها حتى وChat مقفول؟ نزّل تطبيق ntfy واشترك من Settings.</li>
+    <li><b>العبوا مع بعض.</b> دوس <b>Play</b>، اختار لعبة، وكل الناس هيظهرلهم زرار Join.</li>
+    <li><b>الأدمن.</b> اللي بيعمل الأوضة هو الأدمن: يقدر يغيّر اسمها، يثبّت رسالة، يمسح رسايل ويطلّع ناس.</li></ol>
+    <p class="hint" dir="rtl">الرسايل بتتشفر بكود الأوضة قبل ما تخرج من جهازك.</p>
+    <button class="btn pri wide" data-a="close">Got it</button><button class="lang" data-a="lang">Explain in English</button>`;
+    return;
+  }
   if(sheetKind==="help"){
     c.innerHTML=`<h2>How it works</h2><ol class="help">
     <li><b>Pick a name</b> and a color. That's what others see.</li>
     <li><b>Join or start a room.</b> Every room has a code like <i>pizza</i> or <i>482</i>. Anyone with the code can come in, so only share it with friends.</li>
     <li><b>Write.</b> Enter sends, Shift+Enter makes a new line. To reply, swipe a note to the right (phone) or hover it and click <b>↩ Reply</b> (computer). Tap a quote to jump to the note it answers. Tap any note to copy it. Type @name to mention someone.</li>
     <li><b>Hide fast.</b> Press <b>Esc</b> or tap <b>Hide</b> and the screen turns into a fake study page. Press <b>Esc</b> again, or tap the page title 3 times, to come back.</li>
-    <li><b>Get notified.</b> Turn on notifications in Settings. They work while this page is open in any tab, even in the background, for all your recent rooms. Close the tab and they stop.</li>
+    <li><b>Get notified.</b> Turn on notifications in Settings. They work while this page is open in any tab, even in the background, for all your recent rooms. Want them when Chat is closed too? Install the ntfy app and subscribe from Settings.</li>
     <li><b>Play together.</b> Tap <b>Play</b>, pick a game, and everyone gets a Join button.</li>
     <li><b>Admin.</b> Whoever starts a room is its admin: they can rename it, pin a note, delete notes and remove people.</li></ol>
     <p class="hint">Notes are encrypted with the room code before they leave your device.</p>
-    <button class="btn pri wide" data-a="close">Got it</button>`;
+    <button class="btn pri wide" data-a="close">Got it</button><button class="lang" data-a="lang">اشرحلي بالمصري</button>`;
     return;
   }
   if(!r||!sheetKind){closeSheet();return}
+  if(sheetKind==="ntfy"){
+    const on=ntOn(r);
+    c.innerHTML=`<h2>When Chat is closed</h2>
+    <p class="hint">${TH("Get a ping on your phone even when Chat isn't open, using the free ntfy app.","خلّي الإشعار يوصلك على الموبايل حتى وChat مقفول، بتطبيق ntfy المجاني.")}</p>
+    ${S.ar?`<ol class="steps" dir="rtl" lang="ar-EG">
+    <li>نزّل تطبيق <b>ntfy</b> (أندرويد من Google Play، آيفون من App Store).</li>
+    <li>دوس <b>Subscribe in ntfy</b> تحت. لو التطبيق مفتحش، افتح ntfy، دوس <b>+</b>، والزق اسم التوبيك اللي تحت.</li>
+    <li>شغّل الزرار اللي تحت عشان Chat عند صحابك يعرف إنه يبعتلك.</li></ol>`:`<ol class="steps">
+    <li>Install the free <b>ntfy</b> app (Google Play on Android, App Store on iPhone).</li>
+    <li>Tap <b>Subscribe in ntfy</b> below. If the app doesn't open, open ntfy, tap <b>+</b>, and paste the topic below.</li>
+    <li>Turn on the switch below so your friends' Chat knows to ping you.</li></ol>`}
+    <div class="row"><a class="btn wide" style="margin-top:0" href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Android app</a><a class="btn wide" style="margin-top:0" href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">iPhone app</a></div>
+    <a class="btn pri wide" href="ntfy://ntfy.sh/${r.nt}">Subscribe in ntfy</a>
+    <div class="code" style="font-size:15px">${r.nt}</div>
+    <button class="btn wide" data-a="copynt">Copy topic</button>
+    <label class="tg"><span>I subscribed. Ping me for this room<small>${TH("Your friends' Chat sends a ping when you're not here","Chat عند صحابك هيبعتلك لما متكونش موجود")}</small></span><input type="checkbox" data-a="ntsw" ${on?"checked":""}></label>
+    <p class="hint">${TH("It only says “1 new note”: no names, no text. Tapping it opens Chat. If someone else in this room also subscribed and is away, you may get a ping for your own notes too.","بيكتب «1 new note» بس: من غير أسماء ولا كلام. لو دوست عليه هيفتح Chat. لو في حد تاني في الأوضة مشترك ومش موجود، ممكن يوصلك إشعار على رسايلك انت كمان.")}</p>
+    <button class="btn wide" data-a="set">Back to Settings</button>`;
+    return;
+  }
   const adm=!!r.signKey;
   if(sheetKind==="game"){
-    c.innerHTML=`<h2>Wanna play?</h2><p class="hint">Pick a game. Everyone here gets an invite, and the game opens in a new tab.</p><div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
+    c.innerHTML=`<h2>Wanna play?</h2><p class="hint">${TH("Pick a game. Everyone here gets an invite, and the game opens in a new tab.","اختار لعبة. كل اللي في الأوضة هيوصلهم دعوة، واللعبة هتفتح في تاب جديد.")}</p><div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
   }else if(sheetKind==="invite"){
-    c.innerHTML=`<h2>Invite people</h2><p class="hint">Anyone who knows this code can get in, so pick something only your friends would guess.</p><div class="code">${esc(r.code)}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
+    c.innerHTML=`<h2>Invite people</h2><p class="hint">${TH("Anyone who knows this code can get in, so pick something only your friends would guess.","أي حد معاه الكود ده يقدر يدخل، فابعته لصحابك بس.")}</p><div class="code">${esc(r.code)}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
   }else if(sheetKind==="people"){
     const ppl=[[me.id,{n:me.name,c:me.col}],...r.online];
     const bans=Object.entries(r.meta.bans);
@@ -790,33 +857,35 @@ function drawSheet(){
     c.innerHTML=`<h2>${esc(m.u===me.id?"You":m.n)}</h2><p class="hint">${tm(m.ts)}</p><div class="menu">${isBanned()?"":'<button data-a="reply">Reply</button>'}${m.x?'<button data-a="copy">Copy text</button>':""}${adm?'<button data-a="del">Delete for everyone</button>':""}${adm&&m.u!==me.id?`<button data-a="ban" data-u="${m.u}" data-n="${esc(m.n)}">Remove ${esc(m.n)} from the room</button>`:""}<button data-a="close">Cancel</button></div>`;
   }else if(sheetKind==="set"){
     const notifOk="Notification" in window;
-    const tg=(k,t,s)=>`<label class="tg"><span>${t}${s?`<small>${s}</small>`:""}</span><input type="checkbox" data-s="${k}" ${S[k]?"checked":""}></label>`;
+    const tg=(k,t,s)=>`<label class="tg"><span>${t}${s?`<small${S.ar?' dir="rtl"':""}>${s}</small>`:""}</span><input type="checkbox" data-s="${k}" ${S[k]?"checked":""}></label>`;
     c.innerHTML=`<h2>Settings</h2>
     <h3>Room</h3><button class="btn wide" data-a="inv">Invite people / show code</button>
     <h3>You</h3><input id="snm" class="in" maxlength="16" value="${esc(me.name)}" placeholder="Your name"><div class="cols" id="scols">${[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}</div>
     <h3>Notifications</h3>
     <p class="hint st">${notifStatus()}</p>
-    ${notifOk&&Notification.permission!=="denied"?`<label class="tg"><span>Notify me about new notes<small>When you're in another tab or window</small></span><input type="checkbox" data-s="notif" ${notifOn()?"checked":""}></label>
-    ${tg("others","Include my other rooms","Not just the room you have open")}
-    ${tg("peek","Show who and what","Off: it only says “1 new note”, so nobody can read it over your shoulder")}
+    ${notifOk&&Notification.permission!=="denied"?`<label class="tg"><span>Notify me about new notes<small${S.ar?' dir="rtl"':""}>${T("When you're in another tab or window","لما تكون في تاب أو شباك تاني")}</small></span><input type="checkbox" data-s="notif" ${notifOn()?"checked":""}></label>
+    ${tg("others","Include my other rooms",T("Not just the room you have open","مش بس الأوضة اللي انت فاتحها"))}
+    ${tg("peek","Show who and what",T("Off: it only says “1 new note”, so nobody can read it over your shoulder","لو مقفولة: هيكتب «1 new note» بس، محدش يقدر يقرا من وراك"))}
     <button class="btn wide" data-a="testn">Send me a test notification</button>`:""}
+    <button class="btn wide" data-a="ntfy">📱 When Chat is closed (ntfy app)${ntOn(r)?" · on":""}</button>
     <h3>Sounds</h3>
-    ${tg("sound","Sound","A soft tick when a note comes in")}
-    ${tg("buzz","Vibrate","On phones that support it")}
+    ${tg("sound","Sound",T("A soft tick when a note comes in","صوت خفيف لما توصل رسالة"))}
+    ${tg("buzz","Vibrate",T("On phones that support it","في الموبايلات اللي بتدعمه"))}
     <h3>Hiding</h3>
     <label class="tg"><span>Look</span><select data-s="theme"><option value="doc" ${S.theme==="doc"?"selected":""}>Plain document</option><option value="dark" ${S.theme==="dark"?"selected":""}>Dark chat</option></select></label>
     <label class="tg"><span>Tab name</span><select data-s="title">${TITLES.map(t=>`<option ${S.title===t?"selected":""}>${esc(t)}</option>`).join("")}</select></label>
-    ${tg("autohide","Hide when I switch away","Shows the fake notes page when you come back")}
-    <p class="hint">Press <b>Esc</b> or tap <b>Hide</b> to cover the screen with a fake notes page. Press <b>Esc</b> again, or tap the page title 3 times, to come back.</p>
+    ${tg("autohide","Hide when I switch away",T("Shows the fake notes page when you come back","بيظهر صفحة المذاكرة المزيفة لما ترجع للتاب"))}
+    <p class="hint">${TH("Press <b>Esc</b> or tap <b>Hide</b> to cover the screen with a fake notes page. Press <b>Esc</b> again, or tap the page title 3 times, to come back.","دوس <b>Esc</b> أو <b>Hide</b> والشاشة تتقلب لصفحة مذاكرة مزيفة. دوس <b>Esc</b> تاني، أو دوس على عنوان الصفحة 3 مرات، عشان ترجع.")}</p>
     ${adm?`<h3>Admin</h3>
     <label class="f" for="srn">Room name</label><input id="srn" class="in" maxlength="30" value="${esc(r.meta.name)}">
     <label class="f" for="spin">Pinned note</label><textarea id="spin" class="in" rows="2" maxlength="200">${esc(r.meta.pin)}</textarea>
     <button class="btn pri wide" data-a="savemeta">Save</button>
     <button class="btn wide bad" data-a="clear">Clear chat for everyone</button>
     <button class="btn wide" data-a="copyadm">Copy admin link</button>
-    <p class="hint">The admin link makes you admin on another device. Keep it secret.</p>`:""}
+    <p class="hint">${TH("The admin link makes you admin on another device. Keep it secret.","لينك الأدمن بيخليك أدمن على جهاز تاني. خليه سر.")}</p>`:""}
     <h3>Leave</h3><button class="btn wide bad" data-a="forget">Leave and forget this room</button>
     <button class="btn wide" data-a="help">How does this work?</button>
+    <button class="lang" data-a="lang">${S.ar?"Explain in English":"اشرحلي بالمصري"}</button>
     <button class="btn wide" data-a="close">Done</button>`;
   }
 }
@@ -869,10 +938,14 @@ document.addEventListener("click",e=>{
   else if(a==="notifon")turnOnNotifs();
   else if(a==="nbx"){ls.set("mg.nbx",true);renderNbar()}
   else if(a==="testn")testNotif();
+  else if(a==="lang"){S.ar=!S.ar;saveS();renderHomeText();renderNbar();if(R)paint();if(sheetKind)renderSheet()}
+  else if(a==="ntfy")openSheet("ntfy");
+  else if(a==="copynt"){if(R)copy(R.nt,"Topic copied")}
 });
 document.addEventListener("change",async e=>{
   const k=e.target.dataset&&e.target.dataset.s;
   if(e.target.id==="snm"){setName(e.target.value);e.target.value=me.name;return}
+  if(e.target.dataset&&e.target.dataset.a==="ntsw"){if(R){ls.set("mg.nt."+R.tid,e.target.checked);sendP(R,true);toast(e.target.checked?T("Your friends' Chat will ping you here","Chat عند صحابك هيبعتلك هنا"):T("Pings off for this room","الإشعارات اتقفلت للأوضة دي"))}return}
   if(!k)return;
   if(k==="notif"){
     if(e.target.checked)await turnOnNotifs();else{S.notif=false;saveS();renderNbar()}
