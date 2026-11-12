@@ -39,5 +39,6 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 
 - Browser notifications only work while the page is open in a tab (it can be in the background). For notifications with Chat closed, use the ntfy option. On iPhone, add it to your Home Screen first for browser notifications.
 - ntfy topics are public, so anyone who guesses one could see that a ping happened, but never who wrote or what. The topic is made from the room code.
+- On a tablet or phone, the browser pauses Chat a few seconds after you switch apps or turn off the screen, so browser notifications can't arrive then. Use the ntfy option (Settings → When Chat is closed) to get notified anyway. Settings points this out on touch devices
 - No notification showing up? Check that your browser allows notifications for the site, and that Do Not Disturb or Focus is off.
 - It uses free public MQTT relays, the same ones Crashpot uses. No server or account needed. Host it on GitHub Pages.
