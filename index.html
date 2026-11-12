@@ -241,7 +241,6 @@ body.dark .msg .hd{padding:0 4px}
 const GAME_URL="https://fardasticmanguy-rgb.github.io/cool-game/";
 const BROKERS=(()=>{const q=new URLSearchParams(location.search).get("mqtt");return q?q.split(","):["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt"]})();
 const NC=8;
-let lobby=null;
 const MODES={cards:{e:"🃏",n:"Crash Cards"},brawl:{e:"⚔️",n:"Brawl"},hide:{e:"🙈",n:"Hide & Seek"},party:{e:"🎉",n:"Party"},single:{e:"🎯",n:"One game"},casino:{e:"🎰",n:"Casino"}};
 const TITLES=["Notes","Untitled document","Homework","Study guide","Quiz review"];
 const EC={name:"ECDSA",namedCurve:"P-256"},SG={name:"ECDSA",hash:"SHA-256"};
@@ -250,7 +249,9 @@ const IDRE=/^[a-z0-9]{6,20}$/;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const EMBED=window.parent!==window&&new URLSearchParams(location.search).has("embed");
-const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const PRIV=EMBED&&new URLSearchParams(location.search).has("private");
+let lobby=null;
+const ls=PRIV?(()=>{const m=new Map();return{get(k,d){return m.has(k)?JSON.parse(m.get(k)):d},set(k,v){m.set(k,JSON.stringify(v))},del(k){m.delete(k)}}})():{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const rid=n=>{const a=crypto.getRandomValues(new Uint8Array(n));let s="";for(const b of a)s+="abcdefghijklmnopqrstuvwxyz0123456789"[b%36];return s};
 const clean=(s,n)=>String(s??"").replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩]/g,"").replace(/\s+/g," ").trim().slice(0,n);
 const cleanText=s=>String(s??"").replace(/\r/g,"").replace(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f‪-‮⁦-⁩]/g,"").replace(/\n{3,}/g,"\n\n").trim().slice(0,500);
@@ -274,6 +275,7 @@ saveMe();
 const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
+if(PRIV){S.theme="dark";S.notif="Notification" in window&&Notification.permission==="granted"}
 let embedHidden=false;
 const toParent=o=>{if(EMBED)try{parent.postMessage(o,location.origin)}catch(e){}};
 
@@ -685,10 +687,6 @@ async function sendMsg(extra){
 function typing(){const r=R,now=Date.now();if(!r||now-lastTyping<3000||!$("#msg").value.trim())return;lastTyping=now;pub(r,{t:"ty",u:me.id,n:me.name})}
 
 function gameUrl(c,m,host){return GAME_URL+"?play="+c+"&mode="+m+"&name="+encodeURIComponent(me.name)+(host?"&h=1":"")}
-function toGame(c,m,host){
-  if(EMBED){toParent({cpPlay:{c,m,h:!!host,name:me.name}});toParent({chat:"play",c,m,h:host?1:0});return}
-  window.open(gameUrl(c,m,host),"_blank","noopener");
-}
 function invite(mode){
   if(!MODES[mode]||!R||isBanned())return;
   const c=rid(6);
@@ -696,11 +694,15 @@ function invite(mode){
   closeSheet();
   sendMsg({m:mode,c});
 }
+function toGame(c,m,host){
+  if(EMBED){toParent({cpPlay:{c,m,h:!!host,name:me.name}});return}
+  window.open(gameUrl(c,m,host),"_blank","noopener");
+}
 function inviteLobby(){
   if(!lobby||!R||isBanned())return;
   closeSheet();
   sendMsg({m:MODES[lobby.mode]?lobby.mode:"party",c:lobby.code});
-  toast("Invite sent");
+  toast("Invite sent 🎮");
 }
 function playInvite(id){
   const m=R&&R.msgs.get(id);if(!m||!m.g)return;
@@ -918,7 +920,7 @@ function toast(t,ms){const e=$("#toast");e.textContent=t;e.classList.add("on");c
 async function copy(t,msg){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();try{document.execCommand("copy")}catch(_){}a.remove()}toast(msg||"Copied")}
 const baseUrl=()=>location.origin+location.pathname;
 const inviteUrl=r=>baseUrl()+"#j="+r.code;
-function applyTheme(){document.body.classList.toggle("dark",EMBED||S.theme==="dark");document.body.classList.toggle("embed",EMBED);document.querySelector('meta[name="theme-color"]').content=S.theme==="dark"?"#171a21":"#ffffff";setFav()}
+function applyTheme(){document.body.classList.toggle("dark",EMBED||S.theme==="dark");document.querySelector('meta[name="theme-color"]').content=S.theme==="dark"?"#171a21":"#ffffff";setFav()}
 function setName(v){const n=clean(v,16);if(!n||n===me.name)return;me.name=n;saveMe();if(R){sendP(R,true);paint()}}
 
 document.addEventListener("click",e=>{
@@ -1013,6 +1015,12 @@ window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
 if(EMBED)window.addEventListener("message",e=>{
   if(e.source!==parent||e.origin!==location.origin)return;
   const d=e.data&&typeof e.data==="object"?e.data:{};
+  if("cpLobby" in d){
+    const l=d.cpLobby,c=l&&String(l.code||"");
+    lobby=l&&/^[a-z0-9]{2,12}$/.test(c)?{code:c,mode:String(l.mode||"")}:null;
+    if(sheetKind==="game")renderSheet();
+  }
+  if(typeof d.cpName==="string"&&!me.name){const n=clean(d.cpName,16);if(n){me.name=n;saveMe();if($("#nm"))$("#nm").value=n}}
   if(d.cmd==="vis"){embedHidden=!d.on;if(d.on&&!decoyOn){unseen=0;setFav();clearNotifs()}}
   else if(d.cmd==="invite"){
     if(!R){toast("Join a room first, then tap Invite again");return}
@@ -1024,23 +1032,14 @@ window.addEventListener("pagehide",()=>{if(R)sendP(R,false,true)});
 setInterval(()=>{if(R&&up)sendP(R,true)},25000);
 setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")renderSheet()}},5000);
 
-if(EMBED)window.addEventListener("message",e=>{
-  if(e.origin!==location.origin||e.source!==window.parent||!e.data||typeof e.data!=="object")return;
-  if("cpLobby" in e.data){
-    const l=e.data.cpLobby,c=l&&String(l.code||"");
-    lobby=l&&/^[a-z0-9]{2,12}$/.test(c)?{code:c,mode:String(l.mode||"")}:null;
-    if(sheetKind==="game")renderSheet();
-  }
-  if(typeof e.data.cpName==="string"&&!me.name){const n=clean(e.data.cpName,16);if(n){me.name=n;saveMe();if($("#nm"))$("#nm").value=n}}
-});
 
 (async()=>{
   applyTheme();
   if(EMBED){
-    if(!me.name){let n="";try{n=clean(localStorage.getItem("cp.name")||"",16)}catch(e){}if(n){me.name=n;saveMe()}}
-    try{window.parent.postMessage({cpReady:1},location.origin)}catch(e){}
+    document.body.classList.add("embed");
+    if(!me.name&&!PRIV){let n="";try{n=clean(localStorage.getItem("cp.name")||"",16)}catch(e){}if(n){me.name=n;saveMe()}}
+    toParent({cpReady:1});
   }
-  if(EMBED)document.body.classList.add("embed");
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
     navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.open)openFromNotif(e.data.open)});
