@@ -20,6 +20,9 @@ button{cursor:pointer}
 .scr{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)}
 .wrap{width:100%;max-width:760px;height:100%;display:flex;flex-direction:column;background:var(--page);border-left:1px solid var(--line);border-right:1px solid var(--line)}
 #home .wrap{overflow:auto;padding:28px 20px 40px}
+body.embed .wrap{border:0}
+body.embed #home .wrap{padding:18px 14px 30px}
+body.embed #home h1{font-size:20px}
 h1{font-size:26px;font-weight:600;margin:0 0 4px}
 h3{font-size:13px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;margin:22px 0 8px}
 .lead{color:var(--sub);margin:0 0 20px}
@@ -246,7 +249,9 @@ const IDRE=/^[a-z0-9]{6,20}$/;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const EMBED=window.parent!==window&&new URLSearchParams(location.search).has("embed");
-const ls=EMBED?(()=>{const m=new Map();return{get(k,d){return m.has(k)?JSON.parse(m.get(k)):d},set(k,v){m.set(k,JSON.stringify(v))},del(k){m.delete(k)}}})():{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const PRIV=EMBED&&new URLSearchParams(location.search).has("private");
+let lobby=null;
+const ls=PRIV?(()=>{const m=new Map();return{get(k,d){return m.has(k)?JSON.parse(m.get(k)):d},set(k,v){m.set(k,JSON.stringify(v))},del(k){m.delete(k)}}})():{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const rid=n=>{const a=crypto.getRandomValues(new Uint8Array(n));let s="";for(const b of a)s+="abcdefghijklmnopqrstuvwxyz0123456789"[b%36];return s};
 const clean=(s,n)=>String(s??"").replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩]/g,"").replace(/\s+/g," ").trim().slice(0,n);
 const cleanText=s=>String(s??"").replace(/\r/g,"").replace(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f‪-‮⁦-⁩]/g,"").replace(/\n{3,}/g,"\n\n").trim().slice(0,500);
@@ -270,7 +275,7 @@ saveMe();
 const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
-if(EMBED){S.theme="dark";S.notif="Notification" in window&&Notification.permission==="granted"}
+if(PRIV){S.theme="dark";S.notif="Notification" in window&&Notification.permission==="granted"}
 let embedHidden=false;
 const toParent=o=>{if(EMBED)try{parent.postMessage(o,location.origin)}catch(e){}};
 
@@ -685,15 +690,24 @@ function gameUrl(c,m,host){return GAME_URL+"?play="+c+"&mode="+m+"&name="+encode
 function invite(mode){
   if(!MODES[mode]||!R||isBanned())return;
   const c=rid(6);
-  if(EMBED)toParent({chat:"play",c,m:mode,h:1});
-  else window.open(gameUrl(c,mode,true),"_blank","noopener");
+  toGame(c,mode,true);
   closeSheet();
   sendMsg({m:mode,c});
 }
+function toGame(c,m,host){
+  if(EMBED){toParent({cpPlay:{c,m,h:!!host,name:me.name}});return}
+  window.open(gameUrl(c,m,host),"_blank","noopener");
+}
+function inviteLobby(){
+  if(!lobby||!R||isBanned())return;
+  closeSheet();
+  sendMsg({m:MODES[lobby.mode]?lobby.mode:"party",c:lobby.code});
+  toast("Invite sent 🎮");
+}
 function playInvite(id){
   const m=R&&R.msgs.get(id);if(!m||!m.g)return;
-  if(EMBED){toParent({chat:"play",c:m.g.c,m:m.g.m,h:m.u===me.id?1:0});return}
-  window.open(gameUrl(m.g.c,m.g.m,m.u===me.id),"_blank","noopener");
+  if(EMBED&&lobby&&lobby.code===m.g.c){toast("You're already in that lobby");return}
+  toGame(m.g.c,m.g.m,m.u===me.id);
 }
 
 const canNotify=()=>"Notification" in window;
@@ -855,7 +869,7 @@ function drawSheet(){
   }
   const adm=!!r.signKey;
   if(sheetKind==="game"){
-    c.innerHTML=`<h2>Wanna play?</h2><p class="hint">${TH("Pick a game. Everyone here gets an invite, and the game opens in a new tab.","اختار لعبة. كل اللي في الأوضة هيوصلهم دعوة، واللعبة هتفتح في تاب جديد.")}</p><div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
+    c.innerHTML=`<h2>Wanna play?</h2>${lobby?`<button class="btn pri wide" data-a="mylobby">Invite them to my lobby (code ${esc(lobby.code.toUpperCase())})</button><p class="hint">${TH("Or start a new game:","أو ابدأ لعبة جديدة:")}</p>`:`<p class="hint">${EMBED?TH("Pick a game. Everyone here gets an invite, and you jump into the lobby.","اختار لعبة. كل اللي في الأوضة هيوصلهم دعوة، وانت هتدخل اللوبي على طول."):TH("Pick a game. Everyone here gets an invite, and the game opens in a new tab.","اختار لعبة. كل اللي في الأوضة هيوصلهم دعوة، واللعبة هتفتح في تاب جديد.")}</p>`}<div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
   }else if(sheetKind==="invite"){
     c.innerHTML=`<h2>Invite people</h2><p class="hint">${TH("Anyone who knows this code can get in, so pick something only your friends would guess.","أي حد معاه الكود ده يقدر يدخل، فابعته لصحابك بس.")}</p><div class="code">${esc(r.code)}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
   }else if(sheetKind==="people"){
@@ -906,7 +920,7 @@ function toast(t,ms){const e=$("#toast");e.textContent=t;e.classList.add("on");c
 async function copy(t,msg){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();try{document.execCommand("copy")}catch(_){}a.remove()}toast(msg||"Copied")}
 const baseUrl=()=>location.origin+location.pathname;
 const inviteUrl=r=>baseUrl()+"#j="+r.code;
-function applyTheme(){document.body.classList.toggle("dark",S.theme==="dark");document.querySelector('meta[name="theme-color"]').content=S.theme==="dark"?"#171a21":"#ffffff";setFav()}
+function applyTheme(){document.body.classList.toggle("dark",EMBED||S.theme==="dark");document.querySelector('meta[name="theme-color"]').content=S.theme==="dark"?"#171a21":"#ffffff";setFav()}
 function setName(v){const n=clean(v,16);if(!n||n===me.name)return;me.name=n;saveMe();if(R){sendP(R,true);paint()}}
 
 document.addEventListener("click",e=>{
@@ -931,6 +945,7 @@ document.addEventListener("click",e=>{
   else if(a==="close")closeSheet();
   else if(a==="mode")invite(b.dataset.m);
   else if(a==="play")playInvite(b.dataset.id);
+  else if(a==="mylobby")inviteLobby();
   else if(a==="bottom"){const l=$("#log");l.scrollTop=l.scrollHeight;b.hidden=true}
   else if(a==="unreply"){replyTo=null;renderReply()}
   else if(a==="reply"){const id=sheetArg;closeSheet();startReply(id)}
@@ -1000,6 +1015,12 @@ window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
 if(EMBED)window.addEventListener("message",e=>{
   if(e.source!==parent||e.origin!==location.origin)return;
   const d=e.data&&typeof e.data==="object"?e.data:{};
+  if("cpLobby" in d){
+    const l=d.cpLobby,c=l&&String(l.code||"");
+    lobby=l&&/^[a-z0-9]{2,12}$/.test(c)?{code:c,mode:String(l.mode||"")}:null;
+    if(sheetKind==="game")renderSheet();
+  }
+  if(typeof d.cpName==="string"&&!me.name){const n=clean(d.cpName,16);if(n){me.name=n;saveMe();if($("#nm"))$("#nm").value=n}}
   if(d.cmd==="vis"){embedHidden=!d.on;if(d.on&&!decoyOn){unseen=0;setFav();clearNotifs()}}
   else if(d.cmd==="invite"){
     if(!R){toast("Join a room first, then tap Invite again");return}
@@ -1013,7 +1034,11 @@ setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")rende
 
 (async()=>{
   applyTheme();
-  if(EMBED)document.body.classList.add("embed");
+  if(EMBED){
+    document.body.classList.add("embed");
+    if(!me.name&&!PRIV){let n="";try{n=clean(localStorage.getItem("cp.name")||"",16)}catch(e){}if(n){me.name=n;saveMe()}}
+    toParent({cpReady:1});
+  }
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
     navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.open)openFromNotif(e.data.open)});
