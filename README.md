@@ -22,7 +22,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 - **Tab name** can be "Notes", "Untitled document", "Homework" and more
 - **Plain document look** by default, or a dark chat look
 - **Wanna play?**: tap Play, pick a Crashpot game (now with 🎰 Casino too), and everyone gets a Join button that drops them in the same lobby
-- **Inside Crashpot**: the game's 💬 panel has a Chats tab with your rooms, and Join on an invite drops you into that lobby. Play there can invite the room to the lobby you're already in
+- **Inside Crashpot**: open the 💬 panel in the game and pick **Chats**. Same name and rooms as here. In a lobby, **Play → Invite them to my lobby** shares your lobby code, and Join opens the game right there instead of a new tab
 - **Private, inside Crashpot**: the game also has a 🔐 CHAT tab that opens this chat in a side panel. In there nothing is saved on the device, and closing it locks it, so you type the room code again next time. Tap 🎮 Invite in the panel to send your lobby to the room
 - **Admin**: rename the room, pin a note, delete messages, remove people, clear the chat. The admin's notes get an "admin" tag nobody else can fake
 - **Admin link** to be admin on another device
