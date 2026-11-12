@@ -400,7 +400,7 @@ function loadMqtt(){
     res(!!window.mqtt);
   });
 }
-const topics=r=>[r.topic,r.topic+"/meta",r.topic+"/last"];
+const topics=r=>[r.topic,r.topic+"/meta",r.topic+"/last",r.topic+"/nt"];
 function connect(){
   for(const url of BROKERS){
     let c;try{c=window.mqtt.connect(url,{clientId:"mg_"+rid(10),clean:true,keepalive:30,reconnectPeriod:3000,connectTimeout:9000,protocolVersion:4})}catch(e){continue}
@@ -470,7 +470,7 @@ async function onWatch(w,txt){
   alertNew([m],true,{code:w.code,name});
 }
 function countUp(){up=clients.filter(c=>c.__up).length;if(R)renderHead()}
-function wentUp(){clearTimeout(upTimer);upTimer=setTimeout(()=>{const r=R;if(!r)return;sendP(r);askHistory(r);if(r.signKey&&r.metaRaw)pub(r,{t:"meta",...r.metaRaw},"/meta",true)},300)}
+function wentUp(){clearTimeout(upTimer);upTimer=setTimeout(()=>{const r=R;if(!r)return;sendP(r);askHistory(r);setTimeout(()=>{if(R===r)nsShare(r)},2500);if(r.signKey&&r.metaRaw)pub(r,{t:"meta",...r.metaRaw},"/meta",true)},300)}
 async function pub(r,obj,sub,retain){
   if(!r)return;
   const txt=await seal(r.key,JSON.stringify(obj));
@@ -499,7 +499,7 @@ async function handle(r,o){
   else if(o.t==="p"){
     if(typeof o.u!=="string"||!IDRE.test(o.u)||o.u===me.id||r.meta.bans[o.u])return;
     noteNt(r,o.u,!!o.nt);
-    if(o.bye)r.online.delete(o.u);else{const fresh=!r.online.has(o.u);r.online.set(o.u,{n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,at:now});if(fresh&&!o.re)setTimeout(()=>sendP(r,true),300+Math.random()*900)}
+    if(o.bye)r.online.delete(o.u);else{const fresh=!r.online.has(o.u);r.online.set(o.u,{n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,at:now,h:!!o.h});if(fresh&&!o.re)setTimeout(()=>sendP(r,true),300+Math.random()*900)}
     renderHead();if(sheetKind==="people")renderSheet();
   }
   else if(o.t==="ty"){if(typeof o.u==="string"&&IDRE.test(o.u)&&o.u!==me.id){r.typing.set(o.u,{n:clean(o.n,16)||"Someone",at:now});renderTyping()}}
@@ -516,20 +516,46 @@ async function handle(r,o){
     await addMsgs(r,list,false);
   }
   else if(o.t==="meta")await acceptMeta(r,o.ms,o.sig);
+  else if(o.t==="ns"&&o.m&&typeof o.m==="object"){nsMerge(r,o.m);nsShare(r)}
 }
-function sendP(r,re,bye){if(r&&!isBanned())pub(r,{t:"p",u:me.id,n:me.name,c:me.col,re:re?1:0,bye:bye?1:0,nt:ntOn(r)?1:0})}
+const awayNow=()=>document.hidden||decoyOn||embedHidden;
+function sendP(r,re,bye){if(r&&!isBanned())pub(r,{t:"p",u:me.id,n:me.name,c:me.col,re:re?1:0,bye:bye?1:0,nt:ntOn(r)?1:0,h:awayNow()?1:0})}
 const ntOn=r=>!!(r&&ls.get("mg.nt."+r.tid,false));
+function nsGet(r){
+  const m=ls.get("mg.ns."+r.tid,{}),o={};
+  for(const[u,v]of Object.entries(m||{})){if(!IDRE.test(u))continue;if(typeof v==="number")o[u]={t:v,on:1};else if(v&&typeof v.t==="number")o[u]={t:v.t,on:v.on?1:0}}
+  return o;
+}
+function nsMerge(r,inc){
+  const m=nsGet(r);let ch=false;
+  for(const[u,v]of Object.entries(inc||{})){if(!IDRE.test(u)||!v||typeof v.t!=="number"||v.t>Date.now()+864e5)continue;if(!m[u]||v.t>m[u].t){m[u]={t:v.t,on:v.on?1:0};ch=true}}
+  const keep=Object.entries(m).filter(([u,v])=>Date.now()-v.t<60*864e5).sort((a,b)=>b[1].t-a[1].t).slice(0,60);
+  if(ch)ls.set("mg.ns."+r.tid,Object.fromEntries(keep));
+  return ch;
+}
+function nsShare(r,force){
+  const m=nsGet(r),mine=m[me.id],on=ntOn(r)?1:0;
+  if(!force&&(on?mine&&mine.on&&Date.now()-mine.t<7*864e5:!mine||!mine.on))return;
+  m[me.id]={t:Date.now(),on};ls.set("mg.ns."+r.tid,m);
+  pub(r,{t:"ns",m},"/nt",true);
+}
 function noteNt(r,u,on){
-  const k="mg.ns."+r.tid,m=ls.get(k,{});
-  if(on){if(Date.now()-(m[u]||0)<3600000)return;m[u]=Date.now()}else if(m[u])delete m[u];else return;
-  ls.set(k,m);
+  const m=nsGet(r),v=m[u];
+  if(on&&v&&v.on&&Date.now()-v.t<3600000)return;
+  if(!on&&(!v||!v.on))return;
+  nsMerge(r,{[u]:{t:Date.now(),on:on?1:0}});
+}
+function ntSubsAway(r){
+  const now=Date.now();
+  return Object.entries(nsGet(r)).some(([u,v])=>{if(u===me.id||!v.on||now-v.t>45*864e5||r.meta.bans[u])return false;const p=r.online.get(u);return !p||p.h||now-p.at>40000});
+}
+function ntfySend(r,body){
+  try{fetch("https://ntfy.sh/"+r.nt+"?title=Notes&tags=memo&priority=high&click="+encodeURIComponent(baseUrl()),{method:"POST",body:body||"1 new note",mode:"no-cors",keepalive:true}).catch(()=>{})}catch(e){}
 }
 function ntfyPing(r){
-  const subs=ls.get("mg.ns."+r.tid,{}),now=Date.now();
-  const away=Object.entries(subs).some(([u,t])=>u!==me.id&&now-t<30*864e5&&!r.online.has(u)&&!r.meta.bans[u]);
-  if(!away||now-(r.lastNt||0)<45000)return;
-  r.lastNt=now;
-  try{fetch("https://ntfy.sh/"+r.nt+"?title="+encodeURIComponent("Notes")+"&tags=memo&click="+encodeURIComponent(baseUrl()),{method:"POST",body:"1 new note",mode:"no-cors",keepalive:true}).catch(()=>{})}catch(e){}
+  const now=Date.now();
+  if(!ntSubsAway(r)||now-(r.lastNt||0)<12000)return;
+  r.lastNt=now;ntfySend(r);
 }
 function askHistory(r){const s=sorted(r);pub(r,{t:"h?",rq:rid(8),since:s.length?s[s.length-1].ts:0,u:me.id})}
 function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:[...tombs(r).slice(-60),...shown(r).slice(-40)].map(strip),...(r.metaRaw||{})},"/last",true),delay??1500)}
@@ -903,6 +929,15 @@ function drawSheet(){
     <div class="code" style="font-size:15px">${r.nt}</div>
     <button class="btn wide" data-a="copynt">Copy topic</button>
     <label class="tg"><span>I subscribed. Ping me for this room<small>${TH("Your friends' Chat sends a ping when you're not here","Chat عند صحابك هيبعتلك لما متكونش موجود")}</small></span><input type="checkbox" data-a="ntsw" ${on?"checked":""}></label>
+    <button class="btn wide" data-a="testnt">Send a test ping</button>
+    <h3>${T("Pings late or missing?","الإشعارات بتتأخر أو مش بتوصل؟")}</h3>
+    ${S.ar?`<ol class="steps" dir="rtl" lang="ar-EG">
+    <li>اقفل توفير البطارية لتطبيق ntfy: الإعدادات ← التطبيقات ← ntfy ← البطارية ← <b>غير مقيد</b>.</li>
+    <li>في ntfy، افتح التوبيك، ودوس ⋮ وشغّل <b>Instant delivery</b> لو موجود.</li>
+    <li>اتأكد إن إشعارات ntfy مسموحة ومفيش «عدم الإزعاج».</li></ol>`:`<ol class="steps">
+    <li>Turn off battery saving for ntfy: Settings → Apps → ntfy → Battery → <b>Unrestricted</b>.</li>
+    <li>In ntfy, open the topic, tap ⋮ and turn on <b>Instant delivery</b> if you see it.</li>
+    <li>Check that ntfy is allowed to show notifications and Do Not Disturb is off.</li></ol>`}
     <p class="hint">${TH("It only says “1 new note”: no names, no text. Tapping it opens Chat. If someone else in this room also subscribed and is away, you may get a ping for your own notes too.","بيكتب «1 new note» بس: من غير أسماء ولا كلام. لو دوست عليه هيفتح Chat. لو في حد تاني في الأوضة مشترك ومش موجود، ممكن يوصلك إشعار على رسايلك انت كمان.")}</p>
     <button class="btn wide" data-a="set">Back to Settings</button>`;
     return;
@@ -1011,11 +1046,12 @@ document.addEventListener("click",e=>{
   else if(a==="lang"){S.ar=!S.ar;saveS();renderHomeText();renderNbar();if(R)paint();if(sheetKind)renderSheet()}
   else if(a==="ntfy")openSheet("ntfy");
   else if(a==="copynt"){if(R)copy(R.nt,"Topic copied")}
+  else if(a==="testnt"){if(R){ntfySend(R,"Test: pings from this room reach you");toast(T("Test ping sent. It should show up in ntfy within a few seconds.","اتبعت إشعار تجربة. المفروض يوصل في ntfy خلال ثواني."),5000)}}
 });
 document.addEventListener("change",async e=>{
   const k=e.target.dataset&&e.target.dataset.s;
   if(e.target.id==="snm"){setName(e.target.value);e.target.value=me.name;return}
-  if(e.target.dataset&&e.target.dataset.a==="ntsw"){if(R){ls.set("mg.nt."+R.tid,e.target.checked);sendP(R,true);toast(e.target.checked?T("Your friends' Chat will ping you here","Chat عند صحابك هيبعتلك هنا"):T("Pings off for this room","الإشعارات اتقفلت للأوضة دي"))}return}
+  if(e.target.dataset&&e.target.dataset.a==="ntsw"){if(R){ls.set("mg.nt."+R.tid,e.target.checked);sendP(R,true);nsShare(R,true);toast(e.target.checked?T("Your friends' Chat will ping you here","Chat عند صحابك هيبعتلك هنا"):T("Pings off for this room","الإشعارات اتقفلت للأوضة دي"))}return}
   if(!k)return;
   if(k==="notif"){
     if(e.target.checked)await turnOnNotifs();else{S.notif=false;saveS();renderNbar()}
@@ -1051,7 +1087,7 @@ $("#log").addEventListener("touchend",()=>{
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();hide(!decoyOn)}});
 document.addEventListener("visibilitychange",()=>{
-  if(document.hidden){if(S.autohide&&R)hide(true)}
+  if(document.hidden){if(S.autohide&&R)hide(true);if(R)sendP(R,true)}
   else{if(R)sendP(R,true);if(!decoyOn)clearNotifs();renderNbar();if(!$("#home").hidden)renderRooms()}
 });
 window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
@@ -1064,7 +1100,7 @@ if(EMBED)window.addEventListener("message",e=>{
     if(sheetKind==="game")renderSheet();
   }
   if(typeof d.cpName==="string"&&!me.name){const n=clean(d.cpName,16);if(n){me.name=n;saveMe();if($("#nm"))$("#nm").value=n}}
-  if(d.cmd==="vis"){embedHidden=!d.on;if(d.on&&!decoyOn){unseen=0;setFav();clearNotifs()}}
+  if(d.cmd==="vis"){embedHidden=!d.on;if(R)sendP(R,true);if(d.on&&!decoyOn){unseen=0;setFav();clearNotifs()}}
   else if(d.cmd==="invite"){
     if(!R){toast("Join a room first, then tap Invite again");return}
     if(isBanned()||!MODES[d.m]||typeof d.c!=="string"||!/^[a-z0-9]{2,12}$/.test(d.c))return;
