@@ -747,6 +747,7 @@ function playInvite(id){
 const canNotify=()=>"Notification" in window;
 const notifOn=()=>S.notif&&canNotify()&&Notification.permission==="granted";
 const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const touchy=()=>matchMedia("(pointer:coarse)").matches||navigator.maxTouchPoints>1&&!matchMedia("(hover:hover)").matches;
 const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 function alertNew(list,nearBottom,other){
   if(!list.length)return;
@@ -765,8 +766,13 @@ function noteIcon(){
   try{const c=document.createElement("canvas");c.width=c.height=192;drawDoc(c.getContext("2d"),3);iconUrl=c.toDataURL("image/png")}catch(e){iconUrl="icon.svg"}
   return iconUrl;
 }
+async function swReg(){
+  if(!("serviceWorker" in navigator))return null;
+  try{const r=await Promise.race([navigator.serviceWorker.ready,new Promise(z=>setTimeout(()=>z(null),4000))]);return r||await navigator.serviceWorker.getRegistration()||null}catch(e){return null}
+}
 async function showN(title,opt){
-  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg&&reg.active){await reg.showNotification(title,opt);return true}}catch(e){}
+  const reg=await swReg();
+  if(reg)try{await reg.showNotification(title,opt);return true}catch(e){try{const o={...opt};delete o.renotify;delete o.icon;await reg.showNotification(title,o);return true}catch(_){}}
   try{const n=new Notification(title,opt);n.onclick=()=>{window.focus();n.close();openFromNotif(opt.data&&opt.data.code)};return true}catch(e){return false}
 }
 function sysNotify(m,other){
@@ -780,7 +786,7 @@ function openFromNotif(code){
   if(code&&(!R||R.code!==code)&&me.name)enterRoom(code);
 }
 async function turnOnNotifs(){
-  if(!canNotify()){toast(isIOS()?"On iPhone: tap Share, then Add to Home Screen, and open it from there":"This browser can't show notifications",4000);return false}
+  if(!canNotify()){toast(isIOS()?"On iPhone or iPad: tap Share, then Add to Home Screen, and open it from there":"This browser can't show notifications",4000);return false}
   let p=Notification.permission;
   if(p==="default")try{p=await Notification.requestPermission()}catch(e){p="denied"}
   if(p!=="granted"){S.notif=false;saveS();renderNbar();toast(p==="denied"?"Your browser blocked notifications. Allow them in the site settings (the icon left of the web address), then reload.":"Notifications weren't allowed. Try again and pick Allow.",5000);return false}
@@ -792,7 +798,7 @@ async function testNotif(){
   toast(ok?"Sent! Nothing showed up? Check Do Not Disturb or Focus, and your computer's notification settings for this browser.":"Couldn't show a notification in this browser",6000);
 }
 function nbarText(){
-  if(!canNotify())return isIOS()&&!standalone()?T("On iPhone, add this page to your Home Screen (Share → Add to Home Screen) to get notifications.","على الآيفون: دوس Share وبعدين Add to Home Screen عشان توصلك إشعارات."):"";
+  if(!canNotify())return isIOS()&&!standalone()?T("On iPhone or iPad, add this page to your Home Screen (Share → Add to Home Screen) and open it from there to get notifications.","على الآيفون: دوس Share وبعدين Add to Home Screen عشان توصلك إشعارات."):"";
   if(notifOn()||Notification.permission==="denied")return"";
   return T("Get a notification when someone writes, even when this tab is in the background.","شغّل الإشعارات عشان تعرف لما حد يكتب، حتى لو التاب في الخلفية.");
 }
@@ -803,7 +809,7 @@ function renderNbar(){
 }
 function notifStatus(){
   if(!canNotify())return isIOS()&&!standalone()?TH("📵 Not available in Safari tabs. Tap Share → Add to Home Screen, then open Chat from your Home Screen.","📵 مش شغالة في Safari. دوس Share ثم Add to Home Screen، وافتح Chat من الشاشة الرئيسية."):TH("📵 This browser can't show notifications.","📵 المتصفح ده مبيدعمش الإشعارات.");
-  if(Notification.permission==="denied")return TH("⚠️ Blocked by your browser. Click the icon left of the web address, set Notifications to Allow, then reload this page.","⚠️ المتصفح قافل الإشعارات. دوس على الأيقونة اللي جنب اللينك فوق، خلّي Notifications على Allow، وبعدين اعمل ريفرش.");
+  if(Notification.permission==="denied")return TH("⚠️ Blocked by your browser. Tap or click the 🔒 icon left of the web address, open Permissions (or Site settings), set Notifications to Allow, then reload this page.","⚠️ المتصفح قافل الإشعارات. دوس على الأيقونة اللي جنب اللينك فوق، خلّي Notifications على Allow، وبعدين اعمل ريفرش.");
   return notifOn()?TH("✅ On while this page is open in any tab, even a background one. Want them when Chat is closed too? Use the ntfy app below.","✅ شغالة طول ما الصفحة مفتوحة في أي تاب، حتى لو في الخلفية. عايزها كمان وChat مقفول؟ استخدم تطبيق ntfy تحت."):TH("🔕 Off. Turn it on below.","🔕 مقفولة. شغّلها من تحت.");
 }
 const T=(en,ar)=>S.ar?ar:en;
@@ -927,7 +933,8 @@ function drawSheet(){
     ${tg("others","Include my other rooms",T("Not just the room you have open","مش بس الأوضة اللي انت فاتحها"))}
     ${tg("peek","Show who and what",T("Off: it only says “1 new note”, so nobody can read it over your shoulder","لو مقفولة: هيكتب «1 new note» بس، محدش يقدر يقرا من وراك"))}
     <button class="btn wide" data-a="testn">Send me a test notification</button>`:""}
-    <button class="btn wide" data-a="ntfy">📱 When Chat is closed (ntfy app)${ntOn(r)?" · on":""}</button>
+    ${touchy()&&!ntOn(r)?`<p class="hint">${TH("📱 On a tablet or phone, the browser pauses Chat a few seconds after you switch apps or turn off the screen, so the notifications above only work while Chat is open. To get notified anyway, tap the button below and set up the free ntfy app.","📱 على التابلت أو الموبايل، المتصفح بيوقف الشات بعد ثواني لما تقفل الشاشة أو تروح لبرنامج تاني، فالإشعارات اللي فوق بتشتغل بس والشات مفتوح. عشان توصلك إشعارات برضه، دوس على الزرار اللي تحت وشغّل برنامج ntfy المجاني.")}</p>`:""}
+    <button class="btn wide${touchy()&&!ntOn(r)?" pri":""}" data-a="ntfy">📱 When Chat is closed (ntfy app)${ntOn(r)?" · on":""}</button>
     <h3>Sounds</h3>
     ${tg("sound","Sound",T("A soft tick when a note comes in","صوت خفيف لما توصل رسالة"))}
     ${tg("buzz","Vibrate",T("On phones that support it","في الموبايلات اللي بتدعمه"))}
