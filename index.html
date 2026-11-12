@@ -57,6 +57,9 @@ label.f{display:block;font-size:13px;color:var(--sub);margin:14px 0 6px}
 .msg{position:relative;padding:2px 6px;margin:0 -6px;border-radius:6px;cursor:default;transition:background .3s}
 .rb{position:absolute;right:4px;top:-10px;border:1px solid var(--line);background:var(--page);color:var(--sub);border-radius:6px;padding:2px 8px;font-size:12px;display:none;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 .rb:hover{color:var(--ink)}
+.db{right:84px}
+.db:hover{color:#c0392b}
+.menu .bad{color:#c0392b}
 @media (hover:hover){.msg:hover .rb{display:block}}
 .msg.flash{background:color-mix(in srgb,var(--acc) 22%,transparent)!important}
 .msg.swipe{transition:none}
@@ -262,10 +265,15 @@ const toUrl=s=>s.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
 const bytesU=s=>Uint8Array.from(atob(String(s).replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0));
 const sha=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",typeof s==="string"?enc.encode(s):s));
 const hex=u=>[...u].map(b=>b.toString(16).padStart(2,"0")).join("");
+const HX=/^[0-9a-f]{32}$/;
+const h32=async t=>hex(await sha(t)).slice(0,32);
+const delKey=id=>h32("del:"+DK+":"+id);
+const tombOk=async m=>!!(m.dk&&m.dh&&await h32(m.dk)===m.dh);
 const normCode=s=>{const c=String(s||"").toLowerCase().replace(/[^a-z0-9]/g,"");return c.length>=2&&c.length<=20?c:null};
 const tm=ts=>new Date(ts).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 const dayLabel=ts=>{const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return"Today";n.setDate(n.getDate()-1);if(d.toDateString()===n.toDateString())return"Yesterday";return d.toLocaleDateString([],{weekday:"short",month:"short",day:"numeric"})};
 
+const DK=ls.get("mg.dk",null)||(()=>{const k=rid(24);ls.set("mg.dk",k);return k})();
 const me=Object.assign({id:rid(12),name:"",col:Math.floor(Math.random()*NC)},ls.get("mg.me",{}));
 if(!IDRE.test(me.id))me.id=rid(12);
 me.col=Math.abs(me.col|0)%NC;
@@ -291,7 +299,7 @@ async function unseal(key,t){try{const[a,b]=t.split(".");if(!b)return null;retur
 
 async function makeRoom(code){
   const tid=hex(await sha("chat-topic:"+code)).slice(0,24);
-  const r={code,tid,nt:"nts"+hex(await sha("ntfy:"+code)).slice(0,22),key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
+  const r={code,tid,nt:"nts"+hex(await sha("ntfy:"+code)).slice(0,22),key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),hid:new Set(ls.get("mg.hid."+tid,[])),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
   const pin=ls.get("mg.pin."+tid,null);if(pin)try{r.pubKey=await crypto.subtle.importKey("raw",unb64(pin),EC,false,["verify"]);r.pub=pin}catch(e){}
   const jwk=ls.get("mg.a."+tid,null);if(jwk)await setAdmin(r,jwk);
   const sm=ls.get("mg.m."+tid,null);if(sm)await acceptMeta(r,sm.ms,sm.sig);
@@ -348,27 +356,33 @@ function normMsg(o){
   if(!o||typeof o.id!=="string"||!IDRE.test(o.id)||typeof o.u!=="string"||!IDRE.test(o.u))return null;
   const x=cleanText(o.x);
   const g=o.g&&MODES[o.g.m]&&typeof o.g.c==="string"&&/^[a-z0-9]{2,12}$/.test(o.g.c)?{m:o.g.m,c:o.g.c}:null;
-  if(!x&&!g)return null;
-  return{id:o.id,u:o.u,n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,x,ts:+o.ts||0,r:typeof o.r==="string"&&IDRE.test(o.r)?o.r:null,g,sg:typeof o.sg==="string"&&o.sg.length<200?o.sg:null,ok:false};
+  const dh=typeof o.dh==="string"&&HX.test(o.dh)?o.dh:null,dk=dh&&typeof o.dk==="string"&&HX.test(o.dk)?o.dk:null;
+  if(!x&&!g&&!dk)return null;
+  const gone=!!dk;
+  return{id:o.id,u:o.u,n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,x:gone?"":x,ts:+o.ts||0,r:typeof o.r==="string"&&IDRE.test(o.r)?o.r:null,g:gone?null:g,sg:typeof o.sg==="string"&&o.sg.length<200?o.sg:null,dh,dk,gone,ok:false};
 }
-const strip=m=>({id:m.id,u:m.u,n:m.n,c:m.c,x:m.x,ts:m.ts,r:m.r,g:m.g,sg:m.sg});
+const strip=m=>({id:m.id,u:m.u,n:m.n,c:m.c,x:m.x,ts:m.ts,r:m.r,g:m.g,sg:m.sg,dh:m.dh,dk:m.dk});
+const tombs=r=>sorted(r).filter(m=>m.gone).slice(-150);
 const sorted=r=>[...r.msgs.values()].sort((a,b)=>a.ts-b.ts||(a.id<b.id?-1:1));
-const shown=r=>sorted(r).filter(m=>m.ts>=r.meta.clr&&!r.meta.del.includes(m.id)&&!r.meta.bans[m.u]);
+const shown=r=>sorted(r).filter(m=>!m.gone&&!r.hid.has(m.id)&&m.ts>=r.meta.clr&&!r.meta.del.includes(m.id)&&!r.meta.bans[m.u]);
 const isBanned=()=>!!(R&&R.meta.bans[me.id]);
 
 let saveT=null;
 function saveHist(r){clearTimeout(saveT);saveT=setTimeout(()=>ls.set("mg.h."+r.tid,sorted(r).slice(-300).map(m=>({...strip(m),ok:m.ok}))),400)}
 async function addMsgs(r,list,live){
-  const added=[];
+  const added=[];let wiped=false;
   for(const m of list){
-    if(r.msgs.has(m.id))continue;
-    m.ok=await verifyMsg(r,m);
+    if(m.gone&&!await tombOk(m))continue;
+    const old=r.msgs.get(m.id);
+    if(old){if(m.gone&&!old.gone&&old.dh===m.dh){old.gone=true;old.dk=m.dk;old.x="";old.g=null;wiped=true}continue}
+    m.ok=m.gone?false:await verifyMsg(r,m);
     if(r.msgs.has(m.id))continue;
     const now=Date.now();
     if(live&&Math.abs(m.ts-now)>120000)m.ts=now;
     if(m.ts>now+120000)m.ts=now;
     r.msgs.set(m.id,m);added.push(m);
   }
+  if(wiped){saveHist(r);if(r===R)paint();if(sheetKind==="msg"&&r===R)renderSheet()}
   if(!added.length)return;
   if(r.msgs.size>400){const s=sorted(r);for(const m of s.slice(0,s.length-400))r.msgs.delete(m.id)}
   saveHist(r);
@@ -436,6 +450,12 @@ async function onWatch(w,txt){
   let o;try{o=JSON.parse(s)}catch(e){return}
   if(!o||o.t!=="m")return;
   const m=normMsg(o);if(!m||m.u===me.id)return;
+  if(m.gone){
+    if(!await tombOk(m))return;
+    const h=ls.get("mg.h."+w.tid,[]),i=h.findIndex(x=>x.id===m.id&&x.dh===m.dh);
+    if(i>=0){h[i]={...h[i],x:"",g:null,dk:m.dk};ls.set("mg.h."+w.tid,h)}
+    return;
+  }
   const meta=storedMeta(w.tid);
   if(meta&&(meta.bans[m.u]||meta.bans[me.id]))return;
   const now=Date.now();if(Math.abs(m.ts-now)>120000)m.ts=now;
@@ -487,12 +507,12 @@ async function handle(r,o){
     if(o.u===me.id||typeof o.rq!=="string"||r.hreq.has(o.rq))return;
     const since=+o.since||0,list=shown(r).filter(m=>m.ts>since).slice(-150);
     if(!list.length&&!r.metaRaw)return;
-    r.hreq.set(o.rq,setTimeout(()=>{r.hreq.set(o.rq,0);pub(r,{t:"h",rq:o.rq,list:list.map(strip),...(r.metaRaw||{})})},200+Math.random()*1200));
+    r.hreq.set(o.rq,setTimeout(()=>{r.hreq.set(o.rq,0);pub(r,{t:"h",rq:o.rq,list:[...tombs(r),...list].map(strip),...(r.metaRaw||{})})},200+Math.random()*1200));
   }
   else if(o.t==="h"){
     if(typeof o.rq==="string"){clearTimeout(r.hreq.get(o.rq));r.hreq.set(o.rq,0)}
     if(o.ms&&o.sig)await acceptMeta(r,o.ms,o.sig);
-    const list=Array.isArray(o.list)?o.list.slice(-200).map(normMsg).filter(Boolean):[];
+    const list=Array.isArray(o.list)?o.list.slice(-360).map(normMsg).filter(Boolean):[];
     await addMsgs(r,list,false);
   }
   else if(o.t==="meta")await acceptMeta(r,o.ms,o.sig);
@@ -512,7 +532,7 @@ function ntfyPing(r){
   try{fetch("https://ntfy.sh/"+r.nt+"?title="+encodeURIComponent("Notes")+"&tags=memo&click="+encodeURIComponent(baseUrl()),{method:"POST",body:"1 new note",mode:"no-cors",keepalive:true}).catch(()=>{})}catch(e){}
 }
 function askHistory(r){const s=sorted(r);pub(r,{t:"h?",rq:rid(8),since:s.length?s[s.length-1].ts:0,u:me.id})}
-function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:shown(r).slice(-40).map(strip),...(r.metaRaw||{})},"/last",true),delay??1500)}
+function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:[...tombs(r).slice(-60),...shown(r).slice(-40)].map(strip),...(r.metaRaw||{})},"/last",true),delay??1500)}
 
 function remember(r){
   const list=ls.get("mg.rooms",[]).filter(x=>x.code!==r.code);
@@ -589,7 +609,7 @@ function forgetRoom(){
   const r=R;if(!r)return;
   if(!confirm("Leave this room and delete it from this device?"+(r.signKey?"\n\nYou're the admin. Copy your admin link first or you'll lose admin.":"")))return;
   leaveRoom(true);
-  for(const k of["mg.h.","mg.m.","mg.a."])ls.del(k+r.tid);
+  for(const k of["mg.h.","mg.m.","mg.a.","mg.hid."])ls.del(k+r.tid);
   ls.set("mg.rooms",ls.get("mg.rooms",[]).filter(x=>x.code!==r.code));ls.del("mg.last");
   closeSheet();showHome();syncWatch();
 }
@@ -635,7 +655,7 @@ function renderLog(stick){
     }
     if(m.x)body+=`<div class="tx">${esc(m.x)}</div>`;
     const toMe=!mine&&((me.name&&mention.test(m.x))||(m.r&&byId.get(m.r)&&byId.get(m.r).u===me.id));
-    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${toMe?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div>${banned?"":`<button class="rb" data-a="rq" data-id="${m.id}" title="Reply">↩ Reply</button>`}</div>`;
+    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${toMe?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div>${banned?"":`<button class="rb" data-a="rq" data-id="${m.id}" title="Reply">↩ Reply</button>`}${mine&&m.dh?`<button class="rb db" data-a="mydel" data-id="${m.id}" title="Delete">🗑 Delete</button>`:""}</div>`;
     prev=m;
   }
   log.innerHTML=h;
@@ -677,12 +697,26 @@ async function sendMsg(extra){
   const now=Date.now();sendTimes=sendTimes.filter(s=>now-s<6000);
   if(sendTimes.length>=6){toast("Slow down a little");return}
   sendTimes.push(now);
-  const m={id:rid(12),u:me.id,n:me.name,c:me.col,x,ts:now,r:extra?null:replyTo,g:extra||null,sg:null};
+  const id=rid(12),m={id,u:me.id,n:me.name,c:me.col,x,ts:now,r:extra?null:replyTo,g:extra||null,sg:null,dh:await h32(await delKey(id))};
   if(r.signKey)m.sg=b64(await crypto.subtle.sign(SG,r.signKey,enc.encode(sigStr(m))));
   if(!extra){t.value="";autosize();replyTo=null;renderReply()}
   pub(r,{t:"m",...m});
   await addMsgs(r,[normMsg(m)],false);
   paint(true);pushLast(r);ntfyPing(r);
+}
+async function delMine(id){
+  const r=R,m=r&&r.msgs.get(id);if(!m||m.u!==me.id||!m.dh||m.gone)return;
+  const dk=await delKey(id);if(await h32(dk)!==m.dh){toast("Only the device that sent it can delete it");return}
+  const t={...strip(m),x:"",g:null,dk};
+  pub(r,{t:"m",...t});
+  await addMsgs(r,[normMsg(t)],false);
+  if(replyTo===id){replyTo=null;renderReply()}
+  pushLast(r,300);toast("Deleted for everyone");
+}
+function hideHere(id){
+  const r=R;if(!r)return;r.hid.add(id);ls.set("mg.hid."+r.tid,[...r.hid].slice(-400));
+  if(replyTo===id){replyTo=null;renderReply()}
+  paint();toast("Deleted for you");
 }
 function typing(){const r=R,now=Date.now();if(!r||now-lastTyping<3000||!$("#msg").value.trim())return;lastTyping=now;pub(r,{t:"ty",u:me.id,n:me.name})}
 
@@ -880,7 +914,7 @@ function drawSheet(){
     <button class="btn wide" data-a="inv">Invite people</button><button class="btn wide" data-a="close">Close</button>`;
   }else if(sheetKind==="msg"){
     const m=r.msgs.get(sheetArg);if(!m){closeSheet();return}
-    c.innerHTML=`<h2>${esc(m.u===me.id?"You":m.n)}</h2><p class="hint">${tm(m.ts)}</p><div class="menu">${isBanned()?"":'<button data-a="reply">Reply</button>'}${m.x?'<button data-a="copy">Copy text</button>':""}${adm?'<button data-a="del">Delete for everyone</button>':""}${adm&&m.u!==me.id?`<button data-a="ban" data-u="${m.u}" data-n="${esc(m.n)}">Remove ${esc(m.n)} from the room</button>`:""}<button data-a="close">Cancel</button></div>`;
+    c.innerHTML=`<h2>${esc(m.u===me.id?"You":m.n)}</h2><p class="hint">${tm(m.ts)}</p><div class="menu">${isBanned()?"":'<button data-a="reply">Reply</button>'}${m.x?'<button data-a="copy">Copy text</button>':""}${m.u===me.id&&m.dh?'<button data-a="mydel" class="bad">Delete for everyone</button>':adm?'<button data-a="del" class="bad">Delete for everyone</button>':""}${m.u===me.id&&m.dh?"":'<button data-a="hide">Delete for me</button>'}${adm&&m.u!==me.id?`<button data-a="ban" data-u="${m.u}" data-n="${esc(m.n)}">Remove ${esc(m.n)} from the room</button>`:""}<button data-a="close">Cancel</button></div>`;
   }else if(sheetKind==="set"){
     const notifOk="Notification" in window;
     const tg=(k,t,s)=>`<label class="tg"><span>${t}${s?`<small${S.ar?' dir="rtl"':""}>${s}</small>`:""}</span><input type="checkbox" data-s="${k}" ${S[k]?"checked":""}></label>`;
@@ -952,6 +986,8 @@ document.addEventListener("click",e=>{
   else if(a==="rq")startReply(b.dataset.id);
   else if(a==="jump")jumpTo(b.dataset.id);
   else if(a==="copy"){const m=R&&R.msgs.get(sheetArg);if(m)copy(m.x);closeSheet()}
+  else if(a==="mydel"){const id=b.dataset.id||sheetArg;if(sheetKind==="msg")closeSheet();if(confirm("Delete this note for everyone?"))delMine(id)}
+  else if(a==="hide"){const id=sheetArg;closeSheet();hideHere(id)}
   else if(a==="del"){if(R)setMeta({del:[...R.meta.del,sheetArg].slice(-400)});closeSheet()}
   else if(a==="ban"){if(R&&confirm("Remove "+b.dataset.n+" from this room?"))setMeta({bans:{...R.meta.bans,[b.dataset.u]:b.dataset.n}});if(sheetKind==="msg")closeSheet()}
   else if(a==="unban"){if(R){const bans={...R.meta.bans};delete bans[b.dataset.u];setMeta({bans})}}
