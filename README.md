@@ -17,6 +17,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 - **Egyptian Arabic explanations**: tap "اشرحلي بالمصري" on the home screen, in Settings or in the guide
 - **Unread badges** on your rooms on the home screen
 - **Replies**: swipe a note to the right (phone), hover it and click **↩ Reply** (computer), or tap it. Tap a quote to jump to the original note. Replies to you are highlighted
+- **Delete your notes**: hover your note and click **🗑 Delete**, or tap it and pick **Delete for everyone**. It disappears for everyone, including people who join later. Only the device that sent a note can delete it. Someone else's note? Tap it and pick **Delete for me** to hide it just on your device
 - **Hide**: press `Esc` (or tap Hide) and the screen turns into a fake notes page. Press `Esc` again, or tap the page title 3 times, to come back
 - **Hide when I switch away**: optional, shows the fake page whenever you come back to the tab
 - **Tab name** can be "Notes", "Untitled document", "Homework" and more
