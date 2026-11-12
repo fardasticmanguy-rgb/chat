@@ -269,7 +269,7 @@ const dayLabel=ts=>{const d=new Date(ts),n=new Date();if(d.toDateString()===n.to
 const me=Object.assign({id:rid(12),name:"",col:Math.floor(Math.random()*NC)},ls.get("mg.me",{}));
 if(!IDRE.test(me.id))me.id=rid(12);
 me.col=Math.abs(me.col|0)%NC;
-if(EMBED){const n=clean(new URLSearchParams(location.search).get("name"),16);if(n)me.name=n}
+if(EMBED&&!me.name){const n=clean(new URLSearchParams(location.search).get("name"),16);if(n)me.name=n}
 const saveMe=()=>ls.set("mg.me",me);
 saveMe();
 const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
@@ -1031,6 +1031,7 @@ if(EMBED)window.addEventListener("message",e=>{
 window.addEventListener("pagehide",()=>{if(R)sendP(R,false,true)});
 setInterval(()=>{if(R&&up)sendP(R,true)},25000);
 setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")renderSheet()}},5000);
+
 
 (async()=>{
   applyTheme();
