@@ -13,7 +13,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 
 - **Set your name and color**
 - **Notifications** when the tab is in the background, for the room you have open and your other recent rooms. A banner in the room turns them on with one tap, and Settings shows if they're blocked and has a **Send me a test notification** button. By default they only say "1 new note", not who or what. Notes you missed while the connection dropped still get a notification when it's back
-- **Notifications when Chat is closed** with the free [ntfy](https://ntfy.sh) app: Settings → "When Chat is closed", subscribe in ntfy and flip the switch. Friends' Chat sends a "1 new note" ping (no names, no text) when you're not there
+- **Notifications when Chat is closed** with the free [ntfy](https://ntfy.sh) app: Settings → "When Chat is closed", subscribe in ntfy and flip the switch. Friends' Chat sends a "1 new note" ping (no names, no text) when you're not there. Who is subscribed is shared through the relay, so friends ping you even if you've never been online at the same time. You count as "not there" as soon as you switch apps, lock the screen or hide Chat. There's a **Send a test ping** button and tips for when pings are late
 - **Egyptian Arabic explanations**: tap "اشرحلي بالمصري" on the home screen, in Settings or in the guide
 - **Unread badges** on your rooms on the home screen
 - **Replies**: swipe a note to the right (phone), hover it and click **↩ Reply** (computer), or tap it. Tap a quote to jump to the original note. Replies to you are highlighted
