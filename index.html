@@ -238,14 +238,15 @@ body.dark .msg .hd{padding:0 4px}
 const GAME_URL="https://fardasticmanguy-rgb.github.io/cool-game/";
 const BROKERS=(()=>{const q=new URLSearchParams(location.search).get("mqtt");return q?q.split(","):["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt"]})();
 const NC=8;
-const MODES={cards:{e:"🃏",n:"Crash Cards"},brawl:{e:"⚔️",n:"Brawl"},hide:{e:"🙈",n:"Hide & Seek"},party:{e:"🎉",n:"Party"},single:{e:"🎯",n:"One game"}};
+const MODES={cards:{e:"🃏",n:"Crash Cards"},brawl:{e:"⚔️",n:"Brawl"},hide:{e:"🙈",n:"Hide & Seek"},party:{e:"🎉",n:"Party"},single:{e:"🎯",n:"One game"},casino:{e:"🎰",n:"Casino"}};
 const TITLES=["Notes","Untitled document","Homework","Study guide","Quiz review"];
 const EC={name:"ECDSA",namedCurve:"P-256"},SG={name:"ECDSA",hash:"SHA-256"};
 const IDRE=/^[a-z0-9]{6,20}$/;
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const EMBED=window.parent!==window&&new URLSearchParams(location.search).has("embed");
+const ls=EMBED?(()=>{const m=new Map();return{get(k,d){return m.has(k)?JSON.parse(m.get(k)):d},set(k,v){m.set(k,JSON.stringify(v))},del(k){m.delete(k)}}})():{get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const rid=n=>{const a=crypto.getRandomValues(new Uint8Array(n));let s="";for(const b of a)s+="abcdefghijklmnopqrstuvwxyz0123456789"[b%36];return s};
 const clean=(s,n)=>String(s??"").replace(/[\u0000-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩]/g,"").replace(/\s+/g," ").trim().slice(0,n);
 const cleanText=s=>String(s??"").replace(/\r/g,"").replace(/[\u0000-\u0009\u000b-\u001f\u007f-\u009f‪-‮⁦-⁩]/g,"").replace(/\n{3,}/g,"\n\n").trim().slice(0,500);
@@ -263,11 +264,15 @@ const dayLabel=ts=>{const d=new Date(ts),n=new Date();if(d.toDateString()===n.to
 const me=Object.assign({id:rid(12),name:"",col:Math.floor(Math.random()*NC)},ls.get("mg.me",{}));
 if(!IDRE.test(me.id))me.id=rid(12);
 me.col=Math.abs(me.col|0)%NC;
+if(EMBED){const n=clean(new URLSearchParams(location.search).get("name"),16);if(n)me.name=n}
 const saveMe=()=>ls.set("mg.me",me);
 saveMe();
 const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
+if(EMBED){S.theme="dark";S.notif="Notification" in window&&Notification.permission==="granted"}
+let embedHidden=false;
+const toParent=o=>{if(EMBED)try{parent.postMessage(o,location.origin)}catch(e){}};
 
 let probe=null,pendingAdm=null,R=null,clients=[],up=0,everUp=false,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
 const seen=new Map(),W=new Map();
@@ -337,7 +342,7 @@ async function recheck(r){let ch=false;for(const m of r.msgs.values())if(m.sg&&!
 function normMsg(o){
   if(!o||typeof o.id!=="string"||!IDRE.test(o.id)||typeof o.u!=="string"||!IDRE.test(o.u))return null;
   const x=cleanText(o.x);
-  const g=o.g&&MODES[o.g.m]&&typeof o.g.c==="string"&&/^[a-z0-9]{4,12}$/.test(o.g.c)?{m:o.g.m,c:o.g.c}:null;
+  const g=o.g&&MODES[o.g.m]&&typeof o.g.c==="string"&&/^[a-z0-9]{2,12}$/.test(o.g.c)?{m:o.g.m,c:o.g.c}:null;
   if(!x&&!g)return null;
   return{id:o.id,u:o.u,n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,x,ts:+o.ts||0,r:typeof o.r==="string"&&IDRE.test(o.r)?o.r:null,g,sg:typeof o.sg==="string"&&o.sg.length<200?o.sg:null,ok:false};
 }
@@ -680,12 +685,14 @@ function gameUrl(c,m,host){return GAME_URL+"?play="+c+"&mode="+m+"&name="+encode
 function invite(mode){
   if(!MODES[mode]||!R||isBanned())return;
   const c=rid(6);
-  window.open(gameUrl(c,mode,true),"_blank","noopener");
+  if(EMBED)toParent({chat:"play",c,m:mode,h:1});
+  else window.open(gameUrl(c,mode,true),"_blank","noopener");
   closeSheet();
   sendMsg({m:mode,c});
 }
 function playInvite(id){
   const m=R&&R.msgs.get(id);if(!m||!m.g)return;
+  if(EMBED){toParent({chat:"play",c:m.g.c,m:m.g.m,h:m.u===me.id?1:0});return}
   window.open(gameUrl(m.g.c,m.g.m,m.u===me.id),"_blank","noopener");
 }
 
@@ -695,9 +702,10 @@ const isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platfor
 const standalone=()=>matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 function alertNew(list,nearBottom,other){
   if(!list.length)return;
+  toParent({chat:"new",n:list.length});
   if(S.sound)tick();
   if(S.buzz&&navigator.vibrate)try{navigator.vibrate(25)}catch(e){}
-  if(document.hidden||decoyOn||!document.hasFocus()){
+  if(document.hidden||decoyOn||embedHidden||!document.hasFocus()){
     unseen+=list.length;setFav();
     if(notifOn()&&(!other||S.others))sysNotify(list[list.length-1],other);
   }else if(other)toast("New note in "+other.name);
@@ -773,6 +781,10 @@ function setFav(){
   document.title=S.title;
 }
 
+async function clearNotifs(){
+  if(unseen){unseen=0;setFav()}
+  try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)for(const n of await reg.getNotifications({tag:"mg"}))n.close()}catch(e){}
+}
 function hide(on){
   decoyOn=on;$("#decoy").hidden=!on;$("#app").hidden=on;
   if(on){closeSheet();if(document.activeElement)document.activeElement.blur()}
@@ -985,12 +997,23 @@ document.addEventListener("visibilitychange",()=>{
   else{if(R)sendP(R,true);if(!decoyOn)clearNotifs();renderNbar();if(!$("#home").hidden)renderRooms()}
 });
 window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
+if(EMBED)window.addEventListener("message",e=>{
+  if(e.source!==parent||e.origin!==location.origin)return;
+  const d=e.data&&typeof e.data==="object"?e.data:{};
+  if(d.cmd==="vis"){embedHidden=!d.on;if(d.on&&!decoyOn){unseen=0;setFav();clearNotifs()}}
+  else if(d.cmd==="invite"){
+    if(!R){toast("Join a room first, then tap Invite again");return}
+    if(isBanned()||!MODES[d.m]||typeof d.c!=="string"||!/^[a-z0-9]{2,12}$/.test(d.c))return;
+    sendMsg({m:d.m,c:d.c});toast("Invite sent 🎮");
+  }
+});
 window.addEventListener("pagehide",()=>{if(R)sendP(R,false,true)});
 setInterval(()=>{if(R&&up)sendP(R,true)},25000);
 setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")renderSheet()}},5000);
 
 (async()=>{
   applyTheme();
+  if(EMBED)document.body.classList.add("embed");
   if("serviceWorker" in navigator){
     navigator.serviceWorker.register("sw.js").catch(()=>{});
     navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.open)openFromNotif(e.data.open)});
