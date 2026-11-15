@@ -217,7 +217,7 @@ body.dark .msg.me .seen{text-align:right}
 </style>
 </head>
 <body>
-<div id="decoy" hidden>
+<div id="decoy">
   <div class="dk-top"><div class="dk-ic"></div><div><div class="dk-name" id="dkname">Bio Unit 4 Study Guide</div><div class="dk-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Extensions</span><span>Help</span></div></div><div class="dk-r"><span class="dk-saved" id="dksaved">Saved to Drive</span><span class="dk-share">Share</span><span class="dk-av">M</span></div></div>
   <div class="dk-tools"><span>↶</span><span>↷</span><span>🖶</span><span class="sp"></span><span>100%</span><span class="sp"></span><span class="sel">Normal text</span><span class="sel">Arial</span><span class="sel">11</span><span class="sp"></span><b>B</b><i>I</i><u>U</u><span class="sp"></span><span>≡</span><span>☰</span><span>☑</span></div>
   <div class="dk-body"><div class="dk-out"><h5>OUTLINE</h5><div class="on">Photosynthesis</div><div>Cellular respiration</div><div>Compare and contrast</div><div>Enzymes</div><div>Key terms</div><div>Practice questions</div></div>
@@ -247,7 +247,7 @@ body.dark .msg.me .seen{text-align:right}
   </div></div>
 </div>
 
-<div id="app">
+<div id="app" hidden>
   <section id="home" class="scr">
     <div class="wrap">
       <div class="brand"><div class="dk-ic"></div><h1>Chat</h1></div>
@@ -1403,8 +1403,8 @@ setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")rende
   if(j)try{history.replaceState(null,"",baseUrl()+location.search)}catch(e){}
   let admJwk=null;if(adm)try{admJwk=JSON.parse(atob(adm.replace(/-/g,"+").replace(/_/g,"/")))}catch(e){}
   showHome();
-  let pd=false;try{pd=sessionStorage.getItem("mg.pd")==="1";sessionStorage.removeItem("mg.pd")}catch(e){}
-  if(pd)hide(true);
+  try{sessionStorage.removeItem("mg.pd")}catch(e){}
+  hide(!EMBED);
   if(j)$("#jc").value=normCode(j)||j;
   const target=j;
   if(target&&me.name)await enterRoom(target,admJwk);

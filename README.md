@@ -23,6 +23,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 - **Pings**: tap 🔔 Ping next to someone in People, or write @name. They get a sound, a buzz and a banner, even with generic notifications
 - **Room code every time**: opening the site always starts on the home screen, you type the code again (invite links still work)
 - **Panic delete**: Settings → Panic delete. Set a panic word, then typing it in any box (message, name or room code) wipes all rooms, history and keys from the device and shows the fake study page. Copy your restore code first: pasting it into the Join box on the home screen is the only way to bring everything back
+- **Starts on the fake study page**: every time the site is opened or refreshed it shows the fake page first. Press `Esc` or tap the page title 3 times to get in
 - **Hide**: press `Esc` (or tap Hide) and the screen turns into a fake notes page. Press `Esc` again, or tap the page title 3 times, to come back
 - **Hide when I switch away**: optional, shows the fake page whenever you come back to the tab
 - **Tab name** can be "Notes", "Untitled document", "Homework" and more
