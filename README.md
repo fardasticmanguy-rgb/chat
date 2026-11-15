@@ -18,6 +18,11 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 - **Unread badges** on your rooms on the home screen
 - **Replies**: swipe a note to the right (phone), hover it and click **↩ Reply** (computer), or tap it. Tap a quote to jump to the original note. Replies to you are highlighted
 - **Delete your notes**: hover your note and click **🗑 Delete**, or tap it and pick **Delete for everyone**. It disappears for everyone, including people who join later. Only the device that sent a note can delete it. Someone else's note? Tap it and pick **Delete for me** to hide it just on your device
+- **Pictures**: tap 📎, paste one (Ctrl/Cmd+V) or drag one into the room. They're shrunk and encrypted like notes. Tap a picture to enlarge or save it
+- **Read receipts**: your latest note shows "Sent" or "Seen by …". Turn off sending them in Settings → Privacy
+- **Pings**: tap 🔔 Ping next to someone in People, or write @name. They get a sound, a buzz and a banner, even with generic notifications
+- **Room code every time**: opening the site always starts on the home screen, you type the code again (invite links still work)
+- **Panic delete**: Settings → Panic delete. Set a panic word, then typing it in any box (message, name or room code) wipes all rooms, history and keys from the device and shows the fake study page. Copy your restore code first: pasting it into the Join box on the home screen is the only way to bring everything back
 - **Hide**: press `Esc` (or tap Hide) and the screen turns into a fake notes page. Press `Esc` again, or tap the page title 3 times, to come back
 - **Hide when I switch away**: optional, shows the fake page whenever you come back to the tab
 - **Tab name** can be "Notes", "Untitled document", "Homework" and more
