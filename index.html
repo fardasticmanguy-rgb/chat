@@ -171,6 +171,8 @@ body.dark .msg .hd{padding:0 4px}
 .dk-page h4{font-size:17px;margin:22px 0 6px}
 .dk-date{color:#666;margin:0 0 18px}
 .im{display:block;max-width:min(320px,100%);max-height:320px;border-radius:10px;margin:3px 0;cursor:zoom-in;background:var(--soft)}
+.tk{font-size:11px;color:var(--sub);margin-left:8px;white-space:nowrap;user-select:none}
+.tk.r{color:var(--acc)}
 .seen{font-size:11px;color:var(--sub);margin-top:1px}
 body.dark .msg.me .seen{text-align:right}
 #pend{display:flex;align-items:center;gap:10px;padding:0 4px 8px}
@@ -616,7 +618,7 @@ function mentionIds(r,x){
   }
   return ids;
 }
-function canRead(){return !!R&&!$("#room").hidden&&!awayNow()&&document.hasFocus()}
+function canRead(){return !!R&&!$("#room").hidden&&!awayNow()}
 function sendRead(){
   const r=R;
   if(!r||isBanned()||!S.rr||!canRead())return;
@@ -632,8 +634,10 @@ function seenText(r,m){
   if(!names.length)return"Sent";
   return"Seen by "+names.slice(0,3).join(", ")+(names.length>3?" +"+(names.length-3):"");
 }
+const isRead=(r,m)=>[...r.reads.values()].some(v=>v.ts>=m.ts);
 function updateSeen(){
   const r=R;if(!r)return;
+  document.querySelectorAll("#log .tk").forEach(e=>{const rd=isRead(r,{ts:+e.dataset.ts});e.textContent=rd?"✓✓":"✓";e.classList.toggle("r",rd)});
   const el=document.querySelector("#log .seen"),m=lastMine(r);
   if(el&&m)el.textContent=seenText(r,m);
 }
@@ -869,6 +873,7 @@ function renderLog(stick){
     if(m.i)body+=`<img class="im" src="${m.i}" data-a="img" data-id="${m.id}" alt="Picture">`;
     else if(m.ip)body+=`<div class="hint">📷 Picture (not stored on this device)</div>`;
     if(m.x)body+=`<div class="tx">${esc(m.x)}</div>`;
+    if(mine&&!m.gone){const rd=isRead(r,m);body+=`<span class="tk${rd?" r":""}" data-ts="${m.ts}">${rd?"✓✓":"✓"}</span>`}
     const toMe=!mine&&(mentionsMe(m)||(m.r&&byId.get(m.r)&&byId.get(m.r).u===me.id));
     h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${toMe?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div>${lm&&lm.id===m.id?`<div class="seen">${esc(seenText(r,m))}</div>`:""}${banned?"":`<button class="rb" data-a="rq" data-id="${m.id}" title="Reply">↩ Reply</button>`}${mine&&m.dh?`<button class="rb db" data-a="mydel" data-id="${m.id}" title="Delete">🗑 Delete</button>`:""}</div>`;
     prev=m;
