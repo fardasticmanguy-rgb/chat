@@ -170,23 +170,79 @@ body.dark .msg .hd{padding:0 4px}
 .dk-page h2{font-size:24px;margin:0 0 4px;font-weight:normal}
 .dk-page h4{font-size:17px;margin:22px 0 6px}
 .dk-date{color:#666;margin:0 0 18px}
+.im{display:block;max-width:min(320px,100%);max-height:320px;border-radius:10px;margin:3px 0;cursor:zoom-in;background:var(--soft)}
+.seen{font-size:11px;color:var(--sub);margin-top:1px}
+body.dark .msg.me .seen{text-align:right}
+#pend{display:flex;align-items:center;gap:10px;padding:0 4px 8px}
+#pend img{height:54px;max-width:96px;object-fit:cover;border-radius:8px}
+#pend span{flex:1;font-size:12px;color:var(--sub)}
+#pend button{border:0;background:none;color:var(--sub)}
+#sendrow{align-items:flex-end}
+.att{padding:10px 12px;border-radius:20px;min-height:42px}
+.ppl .btn.pg{margin-left:4px}
+.dk-tools{display:flex;align-items:center;gap:14px;padding:6px 16px;background:#edf2fa;border-bottom:1px solid #d9dee7;font:13px Arial,sans-serif;color:#444;overflow:hidden;white-space:nowrap;position:sticky;top:55px;z-index:1}
+.dk-tools b,.dk-tools i,.dk-tools u{font-size:14px}
+.dk-tools .sel{border:1px solid #c7cdd8;border-radius:4px;padding:2px 8px;background:#fff}
+.dk-tools .sp{width:1px;height:18px;background:#c7cdd8}
+.dk-top .dk-r{margin-left:auto;display:flex;align-items:center;gap:12px;font:13px Arial,sans-serif;color:#555}
+.dk-top .dk-share{background:#c2e7ff;color:#001d35;border-radius:18px;padding:7px 16px;font-weight:600}
+.dk-top .dk-av{width:28px;height:28px;border-radius:50%;background:#8430ce;color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+.dk-saved{font:12px Arial,sans-serif;color:#666;margin-top:1px}
+.dk-page table{border-collapse:collapse;width:100%;margin:8px 0 6px;font-size:15px}
+.dk-page th,.dk-page td{border:1px solid #bbb;padding:6px 9px;text-align:left;vertical-align:top}
+.dk-page th{background:#f1f3f4;font-weight:600}
+.dk-page dl{margin:6px 0}
+.dk-page dt{font-weight:bold;margin-top:6px}
+.dk-page dd{margin:0 0 0 18px}
+.dk-page ol{margin:6px 0}
+.dk-body{display:flex;flex:1;min-height:0;justify-content:center;gap:0}
+.dk-out{width:200px;flex:none;padding:18px 14px;font:13px Arial,sans-serif;color:#444;display:none}
+@media (min-width:1050px){.dk-out{display:block}}
+.dk-out h5{margin:0 0 10px;font-size:12px;letter-spacing:.04em;color:#666;font-weight:600}
+.dk-out div{padding:5px 0 5px 10px;border-left:2px solid #dadce0;color:#5f6368}
+.dk-out div.on{border-color:#1a73e8;color:#1a73e8;font-weight:600}
+.dk-main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}
+.dk-page mark{background:#fff3a3;padding:0 2px}
+.dk-page .box2{border:1px solid #c6dafc;background:#eef4ff;border-radius:6px;padding:8px 12px;margin:10px 0;font-size:15px}
+.dk-page .todo{list-style:none;padding-left:4px}
+.dk-page .todo li::before{content:"☐ "}
+.dk-page .todo li.d::before{content:"☑ "}
+.dk-page .todo li.d{color:#777;text-decoration:line-through}
+.dk-page svg{display:block;margin:8px auto;max-width:100%}
+.dk-page .fn{font-size:12px;color:#666;border-top:1px solid #ddd;margin-top:24px;padding-top:6px}
+.dk-foot{position:sticky;bottom:0;margin-top:auto;display:flex;gap:18px;padding:5px 16px;background:#fff;border-top:1px solid #e0e0e0;font:12px Arial,sans-serif;color:#666;width:100%}
+.panicbox input{margin-bottom:8px}
 </style>
 </head>
 <body>
 <div id="decoy" hidden>
-  <div class="dk-top"><div class="dk-ic"></div><div><div class="dk-name" id="dkname">Unit 4 Review</div><div class="dk-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Help</span></div></div></div>
+  <div class="dk-top"><div class="dk-ic"></div><div><div class="dk-name" id="dkname">Bio Unit 4 Study Guide</div><div class="dk-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Extensions</span><span>Help</span></div></div><div class="dk-r"><span class="dk-saved" id="dksaved">Saved to Drive</span><span class="dk-share">Share</span><span class="dk-av">M</span></div></div>
+  <div class="dk-tools"><span>↶</span><span>↷</span><span>🖶</span><span class="sp"></span><span>100%</span><span class="sp"></span><span class="sel">Normal text</span><span class="sel">Arial</span><span class="sel">11</span><span class="sp"></span><b>B</b><i>I</i><u>U</u><span class="sp"></span><span>≡</span><span>☰</span><span>☑</span></div>
+  <div class="dk-body"><div class="dk-out"><h5>OUTLINE</h5><div class="on">Photosynthesis</div><div>Cellular respiration</div><div>Compare and contrast</div><div>Enzymes</div><div>Key terms</div><div>Practice questions</div></div>
+  <div class="dk-main">
   <div class="dk-page" contenteditable="true" spellcheck="false">
-    <h2>Unit 4 Review: Cells and Energy</h2>
+    <h2>Bio Unit 4 Study Guide: Cells and Energy</h2>
     <p class="dk-date" id="dkdate"></p>
-    <h4>Photosynthesis</h4>
-    <ul><li>Happens in the chloroplasts of plant cells</li><li>6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂</li><li>Light reactions in the thylakoid membrane make ATP and NADPH</li><li>Calvin cycle in the stroma uses them to fix carbon</li></ul>
-    <h4>Cellular respiration</h4>
-    <ul><li>Glycolysis in the cytoplasm: glucose → 2 pyruvate (net 2 ATP)</li><li>Krebs cycle in the mitochondrial matrix</li><li>Electron transport chain makes most of the ATP (about 34)</li><li>Without oxygen: fermentation (lactic acid or alcohol)</li></ul>
-    <h4>Enzymes</h4>
-    <ul><li>Lower activation energy, are not used up</li><li>Shape of the active site matters (lock and key)</li><li>Too much heat or wrong pH can denature them</li></ul>
-    <h4>To study</h4>
-    <ul><li>Compare photosynthesis and respiration in a table</li><li>Practice questions p. 142, 1 to 15</li><li></li></ul>
+    <div class="box2"><b>Test info:</b> Friday, chapters 8 and 9. Know the <mark>equations</mark>, where each stage happens, and what goes in and out. Bring a calculator and a pencil.</div>
+    <h4>1. Photosynthesis</h4>
+    <ul><li>Happens in the <mark>chloroplasts</mark> of plant cells (and algae)</li><li>6CO₂ + 6H₂O + light → C₆H₁₂O₆ + 6O₂</li><li>Light reactions: thylakoid membrane, make ATP and NADPH, release O₂ from splitting water</li><li>Calvin cycle: stroma, uses ATP + NADPH to fix CO₂ into G3P (then glucose)</li><li>Rate goes up with light, CO₂ and temperature until enzymes denature</li></ul>
+    <svg width="440" height="96" viewBox="0 0 440 96" font-family="Arial" font-size="12"><rect x="4" y="22" width="110" height="52" rx="8" fill="#e6f4ea" stroke="#34a853"/><text x="59" y="44" text-anchor="middle">Photosynthesis</text><text x="59" y="60" text-anchor="middle" fill="#555">chloroplast</text><rect x="326" y="22" width="110" height="52" rx="8" fill="#fce8e6" stroke="#ea4335"/><text x="381" y="44" text-anchor="middle">Respiration</text><text x="381" y="60" text-anchor="middle" fill="#555">mitochondria</text><path d="M114 36H326" stroke="#666" fill="none" marker-end="url(#a)"/><path d="M326 62H114" stroke="#666" fill="none" marker-end="url(#a)"/><text x="220" y="30" text-anchor="middle" fill="#444">glucose + O₂</text><text x="220" y="78" text-anchor="middle" fill="#444">CO₂ + H₂O</text><defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8z" fill="#666"/></marker></defs></svg>
+    <h4>2. Cellular respiration</h4>
+    <ul><li>C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + ATP</li><li><mark>Glycolysis</mark> (cytoplasm): glucose → 2 pyruvate, net 2 ATP</li><li>Pyruvate oxidation + <mark>Krebs cycle</mark> (mitochondrial matrix): makes CO₂, NADH, FADH₂</li><li>Electron transport chain (inner membrane): about 32 to 34 ATP, O₂ is the final electron acceptor</li><li>No oxygen → fermentation (lactic acid in muscle, ethanol + CO₂ in yeast), only 2 ATP</li></ul>
+    <h4>3. Compare and contrast</h4>
+    <table><tr><th></th><th>Photosynthesis</th><th>Respiration</th></tr><tr><td>Where</td><td>Chloroplast</td><td>Cytoplasm + mitochondria</td></tr><tr><td>Inputs</td><td>CO₂, H₂O, light</td><td>Glucose, O₂</td></tr><tr><td>Outputs</td><td>Glucose, O₂</td><td>CO₂, H₂O, ATP</td></tr><tr><td>Energy</td><td>Stores energy</td><td>Releases energy</td></tr></table>
+    <h4>4. Enzymes</h4>
+    <ul><li>Lower the activation energy, are not used up</li><li>Active site fits one substrate (induced fit)</li><li>Temperature and pH change the shape → can <mark>denature</mark></li><li>Competitive inhibitors block the active site</li></ul>
+    <h4>Key terms</h4>
+    <dl><dt>ATP</dt><dd>Adenosine triphosphate, the cell's short-term energy currency</dd><dt>Stroma</dt><dd>Fluid inside the chloroplast where the Calvin cycle runs</dd><dt>NADH</dt><dd>Electron carrier that feeds the electron transport chain</dd><dt>Substrate</dt><dd>The molecule an enzyme acts on</dd></dl>
+    <h4>Practice questions</h4>
+    <ol><li>Why does the rate of photosynthesis level off at high light intensity?</li><li>Where in the cell is most ATP made, and why does that need O₂?</li><li>Explain what happens to an enzyme at pH 2 if its optimum is pH 7.</li></ol>
+    <h4>Before the test</h4>
+    <ul class="todo"><li class="d">Reread chapter 8 notes</li><li class="d">Make flashcards for key terms</li><li>Redo the lab questions</li><li>Practice problems p. 138 to 152</li></ul>
+    <p class="fn">¹ Textbook p. 141 has the full Calvin cycle diagram. Ask Ms. Patel about extra credit.</p>
   </div>
+  <div class="dk-foot"><span>Page 1 of 2</span><span>612 words</span><span>English (US)</span></div>
+  </div></div>
 </div>
 
 <div id="app">
@@ -200,7 +256,7 @@ body.dark .msg .hd{padding:0 4px}
       <div class="box">
         <h3>Join a room</h3>
         <p class="hint" id="hjoin"></p>
-        <div class="row"><input id="jc" class="in" maxlength="20" placeholder="Code, like pizza or 482" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"><button class="btn pri" data-a="join">Join</button></div>
+        <div class="row"><input id="jc" class="in" placeholder="Code, like pizza or 482" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"><button class="btn pri" data-a="join">Join</button></div>
       </div>
       <div class="box">
         <h3>Or start your own</h3>
@@ -231,7 +287,8 @@ body.dark .msg .hd{padding:0 4px}
       <div id="typing"></div>
       <form id="send" autocomplete="off">
         <div id="replying" hidden><span id="replytx"></span><button type="button" data-a="unreply">✕</button></div>
-        <div class="row"><textarea id="msg" class="in" rows="1" maxlength="500" placeholder="Write a note…" enterkeyhint="send"></textarea><button class="btn pri" id="sendbtn">Send</button></div>
+        <div id="pend" hidden><img id="pendimg" alt=""><span>Picture ready. Add a note or just send.</span><button type="button" data-a="unimg" aria-label="Remove picture">✕</button></div>
+        <div class="row" id="sendrow"><button type="button" class="btn att" data-a="attach" aria-label="Add a picture" title="Add a picture (you can also paste one)">📎</button><input type="file" id="file" accept="image/*" hidden><textarea id="msg" class="in" rows="1" maxlength="500" placeholder="Write a note…" enterkeyhint="send"></textarea><button class="btn pri" id="sendbtn">Send</button></div>
       </form>
     </div>
   </section>
@@ -243,9 +300,9 @@ body.dark .msg .hd{padding:0 4px}
 <script>
 const GAME_URL="https://fardasticmanguy-rgb.github.io/cool-game/";
 const BROKERS=(()=>{const q=new URLSearchParams(location.search).get("mqtt");return q?q.split(","):["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt"]})();
-const NC=8;
+const NC=8,IMG_MAX=90000,IMG_CAP=120000;
 const MODES={cards:{e:"🃏",n:"Crash Cards"},brawl:{e:"⚔️",n:"Brawl"},hide:{e:"🙈",n:"Hide & Seek"},party:{e:"🎉",n:"Party"},single:{e:"🎯",n:"One game"},casino:{e:"🎰",n:"Casino"}};
-const TITLES=["Notes","Untitled document","Homework","Study guide","Quiz review"];
+const TITLES=["Notes","Untitled document","Homework","Study guide","Quiz review","Bio study guide","Unit 4 review"];
 const EC={name:"ECDSA",namedCurve:"P-256"},SG={name:"ECDSA",hash:"SHA-256"};
 const IDRE=/^[a-z0-9]{6,20}$/;
 
@@ -280,14 +337,14 @@ me.col=Math.abs(me.col|0)%NC;
 if(EMBED&&!me.name){const n=clean(new URLSearchParams(location.search).get("name"),16);if(n)me.name=n}
 const saveMe=()=>ls.set("mg.me",me);
 saveMe();
-const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,title:"Notes"};
+const DEF={theme:"doc",ar:false,notif:false,others:true,peek:false,sound:false,buzz:false,autohide:false,rr:true,title:"Notes"};
 const S={...DEF,...ls.get("mg.set",{})};
 const saveS=()=>ls.set("mg.set",S);
 if(PRIV){S.theme="dark";S.notif="Notification" in window&&Notification.permission==="granted"}
 let embedHidden=false;
 const toParent=o=>{if(EMBED)try{parent.postMessage(o,location.origin)}catch(e){}};
 
-let probe=null,pendingAdm=null,R=null,clients=[],up=0,everUp=false,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
+let pendImg=null,probe=null,pendingAdm=null,R=null,clients=[],up=0,everUp=false,decoyOn=false,unseen=0,replyTo=null,busy=false,sheetKind=null,sheetArg=null,sendTimes=[],lastTyping=0,paintQ=false,upTimer=null;
 const seen=new Map(),W=new Map();
 
 async function deriveKey(code){
@@ -299,7 +356,7 @@ async function unseal(key,t){try{const[a,b]=t.split(".");if(!b)return null;retur
 
 async function makeRoom(code){
   const tid=hex(await sha("chat-topic:"+code)).slice(0,24);
-  const r={code,tid,nt:"nts"+hex(await sha("ntfy:"+code)).slice(0,22),key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),hid:new Set(ls.get("mg.hid."+tid,[])),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
+  const r={code,tid,nt:"nts"+hex(await sha("ntfy:"+code)).slice(0,22),key:await deriveKey(code),topic:"chat1/"+tid,meta:{v:0,name:"",pin:"",bans:{},del:[],clr:0},metaRaw:null,pub:null,pubKey:null,signKey:null,adm:null,msgs:new Map(),hid:new Set(ls.get("mg.hid."+tid,[])),reads:new Map(),online:new Map(),typing:new Map(),hreq:new Map(),lastTimer:null};
   const pin=ls.get("mg.pin."+tid,null);if(pin)try{r.pubKey=await crypto.subtle.importKey("raw",unb64(pin),EC,false,["verify"]);r.pub=pin}catch(e){}
   const jwk=ls.get("mg.a."+tid,null);if(jwk)await setAdmin(r,jwk);
   const sm=ls.get("mg.m."+tid,null);if(sm)await acceptMeta(r,sm.ms,sm.sig);
@@ -357,24 +414,36 @@ function normMsg(o){
   const x=cleanText(o.x);
   const g=o.g&&MODES[o.g.m]&&typeof o.g.c==="string"&&/^[a-z0-9]{2,12}$/.test(o.g.c)?{m:o.g.m,c:o.g.c}:null;
   const dh=typeof o.dh==="string"&&HX.test(o.dh)?o.dh:null,dk=dh&&typeof o.dk==="string"&&HX.test(o.dk)?o.dk:null;
-  if(!x&&!g&&!dk)return null;
+  const img=typeof o.i==="string"&&o.i.length<=IMG_CAP&&/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(o.i)?o.i:null;
+  const ip=!img&&o.ip?1:0;
+  if(!x&&!g&&!dk&&!img&&!ip)return null;
   const gone=!!dk;
-  return{id:o.id,u:o.u,n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,x:gone?"":x,ts:+o.ts||0,r:typeof o.r==="string"&&IDRE.test(o.r)?o.r:null,g:gone?null:g,sg:typeof o.sg==="string"&&o.sg.length<200?o.sg:null,dh,dk,gone,ok:false};
+  const mn=Array.isArray(o.mn)?o.mn.filter(v=>typeof v==="string"&&IDRE.test(v)).slice(0,6):[];
+  return{id:o.id,u:o.u,n:clean(o.n,16)||"Someone",c:Math.abs(o.c|0)%NC,x:gone?"":x,ts:+o.ts||0,r:typeof o.r==="string"&&IDRE.test(o.r)?o.r:null,g:gone?null:g,i:gone?null:img,ip:gone?0:ip,mn:gone?[]:mn,sg:typeof o.sg==="string"&&o.sg.length<200?o.sg:null,dh,dk,gone,ok:false};
 }
-const strip=m=>({id:m.id,u:m.u,n:m.n,c:m.c,x:m.x,ts:m.ts,r:m.r,g:m.g,sg:m.sg,dh:m.dh,dk:m.dk});
+const strip=m=>({id:m.id,u:m.u,n:m.n,c:m.c,x:m.x,ts:m.ts,r:m.r,g:m.g,i:m.i||null,ip:m.ip?1:0,mn:m.mn||[],sg:m.sg,dh:m.dh,dk:m.dk});
+function thin(list,budget){
+  let used=0;const out=[];
+  for(let k=list.length-1;k>=0;k--){
+    const m={...strip(list[k]),ok:list[k].ok};
+    if(m.i){if(used+m.i.length<=budget)used+=m.i.length;else{m.i=null;m.ip=1}}
+    out.unshift(m);
+  }
+  return out;
+}
 const tombs=r=>sorted(r).filter(m=>m.gone).slice(-150);
 const sorted=r=>[...r.msgs.values()].sort((a,b)=>a.ts-b.ts||(a.id<b.id?-1:1));
 const shown=r=>sorted(r).filter(m=>!m.gone&&!r.hid.has(m.id)&&m.ts>=r.meta.clr&&!r.meta.del.includes(m.id)&&!r.meta.bans[m.u]);
 const isBanned=()=>!!(R&&R.meta.bans[me.id]);
 
 let saveT=null;
-function saveHist(r){clearTimeout(saveT);saveT=setTimeout(()=>ls.set("mg.h."+r.tid,sorted(r).slice(-300).map(m=>({...strip(m),ok:m.ok}))),400)}
+function saveHist(r){clearTimeout(saveT);saveT=setTimeout(()=>ls.set("mg.h."+r.tid,thin(sorted(r).slice(-300),720000)),400)}
 async function addMsgs(r,list,live){
   const added=[];let wiped=false;
   for(const m of list){
     if(m.gone&&!await tombOk(m))continue;
     const old=r.msgs.get(m.id);
-    if(old){if(m.gone&&!old.gone&&old.dh===m.dh){old.gone=true;old.dk=m.dk;old.x="";old.g=null;wiped=true}continue}
+    if(old){if(m.gone&&!old.gone&&old.dh===m.dh){old.gone=true;old.dk=m.dk;old.x="";old.g=null;old.i=null;old.ip=0;wiped=true}continue}
     m.ok=m.gone?false:await verifyMsg(r,m);
     if(r.msgs.has(m.id))continue;
     const now=Date.now();
@@ -391,6 +460,9 @@ async function addMsgs(r,list,live){
   const nearBottom=atBottom(),vis=new Set(shown(r).map(m=>m.id));
   paint(nearBottom);
   alertNew(added.filter(m=>m.u!==me.id&&vis.has(m.id)&&(live||m.ts>r.openedAt)),nearBottom);
+  const pg=added.filter(m=>vis.has(m.id)&&(live||m.ts>r.openedAt)&&mentionsMe(m));
+  if(pg.length)pingAlert(pg[pg.length-1].n);
+  sendRead();
 }
 
 function loadMqtt(){
@@ -453,7 +525,7 @@ async function onWatch(w,txt){
   if(m.gone){
     if(!await tombOk(m))return;
     const h=ls.get("mg.h."+w.tid,[]),i=h.findIndex(x=>x.id===m.id&&x.dh===m.dh);
-    if(i>=0){h[i]={...h[i],x:"",g:null,dk:m.dk};ls.set("mg.h."+w.tid,h)}
+    if(i>=0){h[i]={...h[i],x:"",g:null,i:null,ip:0,dk:m.dk};ls.set("mg.h."+w.tid,h)}
     return;
   }
   const meta=storedMeta(w.tid);
@@ -463,11 +535,12 @@ async function onWatch(w,txt){
   if(pin&&m.sg)try{const k=await crypto.subtle.importKey("raw",unb64(pin),EC,false,["verify"]);m.ok=await crypto.subtle.verify(SG,k,unb64(m.sg),enc.encode(sigStr(m)))}catch(e){}
   if(R&&R.tid===w.tid)return;
   const h=ls.get("mg.h."+w.tid,[]);if(h.some(x=>x.id===m.id))return;
-  h.push({...strip(m),ok:m.ok});ls.set("mg.h."+w.tid,h.slice(-300));
+  h.push({...strip(m),ok:m.ok});ls.set("mg.h."+w.tid,thin(h.slice(-300),720000));
   const un=ls.get("mg.un",{});un[w.code]=(un[w.code]||0)+1;ls.set("mg.un",un);
   if(!$("#home").hidden)renderRooms();
   const name=(meta&&meta.name)||(ls.get("mg.rooms",[]).find(x=>x.code===w.code)||{}).name||"Room";
   alertNew([m],true,{code:w.code,name});
+  if(mentionsMe(m))pingAlert(m.n,{code:w.code,name});
 }
 function countUp(){up=clients.filter(c=>c.__up).length;if(R)renderHead()}
 function wentUp(){clearTimeout(upTimer);upTimer=setTimeout(()=>{const r=R;if(!r)return;sendP(r);askHistory(r);setTimeout(()=>{if(R===r)nsShare(r)},2500);if(r.signKey&&r.metaRaw)pub(r,{t:"meta",...r.metaRaw},"/meta",true)},300)}
@@ -480,7 +553,7 @@ async function pub(r,obj,sub,retain){
 async function onRaw(topic,txt){
   if(seen.has(txt))return;
   if(probe&&topics(probe.r).includes(topic)){seen.set(txt,Date.now());probe.hit();return}
-  if(txt.length>200000)return;
+  if(txt.length>400000)return;
   const r=R;
   if(!r||!topics(r).includes(topic)){
     for(const w of W.values())if(w.topic===topic){seen.set(txt,Date.now());onWatch(w,txt);break}
@@ -507,18 +580,90 @@ async function handle(r,o){
     if(o.u===me.id||typeof o.rq!=="string"||r.hreq.has(o.rq))return;
     const since=+o.since||0,list=shown(r).filter(m=>m.ts>since).slice(-150);
     if(!list.length&&!r.metaRaw)return;
-    r.hreq.set(o.rq,setTimeout(()=>{r.hreq.set(o.rq,0);pub(r,{t:"h",rq:o.rq,list:[...tombs(r),...list].map(strip),...(r.metaRaw||{})})},200+Math.random()*1200));
+    r.hreq.set(o.rq,setTimeout(()=>{r.hreq.set(o.rq,0);pub(r,{t:"h",rq:o.rq,list:thin([...tombs(r),...list],130000),...(r.metaRaw||{})})},200+Math.random()*1200));
   }
   else if(o.t==="h"){
     if(typeof o.rq==="string"){clearTimeout(r.hreq.get(o.rq));r.hreq.set(o.rq,0)}
     if(o.ms&&o.sig)await acceptMeta(r,o.ms,o.sig);
     const list=Array.isArray(o.list)?o.list.slice(-360).map(normMsg).filter(Boolean):[];
     await addMsgs(r,list,false);
+    sendRead();
+  }
+  else if(o.t==="pg"){
+    if(typeof o.u!=="string"||!IDRE.test(o.u)||o.to!==me.id||o.u===me.id||r.meta.bans[o.u]||isBanned())return;
+    if(now-(r.lastPg||0)<4000)return;
+    r.lastPg=now;pingAlert(clean(o.n,16)||"Someone");
+  }
+  else if(o.t==="rd"){
+    if(typeof o.u!=="string"||!IDRE.test(o.u)||o.u===me.id||r.meta.bans[o.u])return;
+    const ts=Math.min(+o.ts||0,now+120000),old=r.reads.get(o.u);
+    if(!old||ts>old.ts){r.reads.set(o.u,{n:clean(o.n,16)||"Someone",ts});updateSeen()}
   }
   else if(o.t==="meta")await acceptMeta(r,o.ms,o.sig);
   else if(o.t==="ns"&&o.m&&typeof o.m==="object"){nsMerge(r,o.m);nsShare(r)}
 }
 const awayNow=()=>document.hidden||decoyOn||embedHidden;
+function mentionsMe(m){
+  if(!m||m.u===me.id)return false;
+  if(m.mn&&m.mn.includes(me.id))return true;
+  return !!(me.name&&new RegExp("@"+me.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i").test(m.x));
+}
+function mentionIds(r,x){
+  const ids=[];
+  for(const[u,p]of r.online){
+    if(ids.length>=6)break;
+    if(new RegExp("@"+p.n.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i").test(x))ids.push(u);
+  }
+  return ids;
+}
+function canRead(){return !!R&&!$("#room").hidden&&!awayNow()&&document.hasFocus()}
+function sendRead(){
+  const r=R;
+  if(!r||isBanned()||!S.rr||!canRead())return;
+  const l=shown(r);if(!l.length)return;
+  const last=l[l.length-1];
+  if(last.u===me.id||last.ts<=(r.sentRead||0))return;
+  r.sentRead=last.ts;
+  pub(r,{t:"rd",u:me.id,n:me.name,ts:last.ts});
+}
+function lastMine(r){const l=shown(r);for(let k=l.length-1;k>=0;k--)if(l[k].u===me.id)return l[k];return null}
+function seenText(r,m){
+  const names=[...r.reads.values()].filter(v=>v.ts>=m.ts).map(v=>v.n);
+  if(!names.length)return"Sent";
+  return"Seen by "+names.slice(0,3).join(", ")+(names.length>3?" +"+(names.length-3):"");
+}
+function updateSeen(){
+  const r=R;if(!r)return;
+  const el=document.querySelector("#log .seen"),m=lastMine(r);
+  if(el&&m)el.textContent=seenText(r,m);
+}
+function bell(){
+  try{
+    actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+    [[880,0],[1175,.16]].forEach(([f,d])=>{
+      const o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+d;
+      o.frequency.value=f;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.0001,t+.28);
+      o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.3);
+    });
+  }catch(e){}
+}
+function pingAlert(name,other){
+  try{if(navigator.vibrate)navigator.vibrate([120,70,120,70,220])}catch(e){}
+  bell();
+  toast("🔔 "+name+" pinged you"+(other?" in "+other.name:""),4500);
+  if((document.hidden||decoyOn||embedHidden||!document.hasFocus())&&notifOn()){
+    showN(S.title,{body:S.peek?name+" pinged you":"Someone pinged you",tag:"mg-ping",renotify:true,requireInteraction:true,icon:noteIcon(),data:{code:other?other.code:R&&R.code||null}});
+  }
+}
+const pingAt=new Map();
+function sendPing(u,n){
+  const r=R;if(!r||isBanned()||!IDRE.test(u))return;
+  const now=Date.now();
+  if(now-(pingAt.get(u)||0)<8000){toast("Wait a few seconds before pinging "+n+" again");return}
+  pingAt.set(u,now);
+  pub(r,{t:"pg",u:me.id,n:me.name,to:u,ts:now});
+  toast("Pinged "+n+" 🔔");
+}
 function sendP(r,re,bye){if(r&&!isBanned())pub(r,{t:"p",u:me.id,n:me.name,c:me.col,re:re?1:0,bye:bye?1:0,nt:ntOn(r)?1:0,h:awayNow()?1:0})}
 const ntOn=r=>!!(r&&ls.get("mg.nt."+r.tid,false));
 function nsGet(r){
@@ -558,7 +703,7 @@ function ntfyPing(r){
   r.lastNt=now;ntfySend(r);
 }
 function askHistory(r){const s=sorted(r);pub(r,{t:"h?",rq:rid(8),since:s.length?s[s.length-1].ts:0,u:me.id})}
-function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:[...tombs(r).slice(-60),...shown(r).slice(-40)].map(strip),...(r.metaRaw||{})},"/last",true),delay??1500)}
+function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:thin([...tombs(r).slice(-60),...shown(r).slice(-40)],0),...(r.metaRaw||{})},"/last",true),delay??1500)}
 
 function remember(r){
   const list=ls.get("mg.rooms",[]).filter(x=>x.code!==r.code);
@@ -566,7 +711,47 @@ function remember(r){
   ls.set("mg.rooms",list.slice(0,12));ls.set("mg.last",r.code);
 }
 
+const PANIC_PFX="CHATRESTORE1:";
+let pwHash=ls.get("mg.panic",null),panicking=false;
+const lsKeys=()=>{const o=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("mg."))o.push(k)}}catch(e){}return o};
+const panicHash=v=>h32("panic:"+String(v).trim().toLowerCase());
+function exportCode(){
+  const o={};
+  for(const k of lsKeys()){
+    let v=localStorage.getItem(k);
+    if(k.startsWith("mg.h.")){try{v=JSON.stringify(thin(JSON.parse(v),0))}catch(e){continue}}
+    o[k]=v;
+  }
+  return PANIC_PFX+b64(enc.encode(JSON.stringify(o)));
+}
+function restoreFrom(txt){
+  const t=String(txt).trim();
+  if(PRIV||!t.startsWith(PANIC_PFX))return false;
+  try{
+    const o=JSON.parse(dec.decode(unb64(t.slice(PANIC_PFX.length))));
+    for(const[k,v]of Object.entries(o))if(/^mg\.[A-Za-z0-9._-]+$/.test(k)&&typeof v==="string")localStorage.setItem(k,v);
+    sessionStorage.removeItem("mg.pd");
+    return true;
+  }catch(e){return false}
+}
+function tryRestore(v){
+  if(restoreFrom(v)){toast("Restored");setTimeout(()=>location.replace(baseUrl()+location.search),400)}
+  else hnote("That code didn't work.");
+}
+async function panic(){
+  if(panicking)return;panicking=true;
+  try{if(R)sendP(R,false,true)}catch(e){}
+  for(const k of lsKeys())try{localStorage.removeItem(k)}catch(e){}
+  try{sessionStorage.setItem("mg.pd","1")}catch(e){}
+  swReg().then(reg=>reg&&reg.getNotifications().then(l=>l.forEach(n=>n.close()))).catch(()=>{});
+  setTimeout(()=>location.replace(baseUrl()+location.search),120);
+}
+async function checkPanic(v){
+  if(!pwHash||!v||v.length>40)return;
+  if(await panicHash(v)===pwHash)panic();
+}
 async function enterRoom(code,admJwk){
+  if(String(code).trim().startsWith(PANIC_PFX)){tryRestore(code);return}
   code=normCode(code);
   if(!code){hnote("That code doesn't look right. Codes are 2 to 20 letters or numbers.");return}
   if(!me.name){hnote("Pick a name first.");$("#nm").focus();$("#jc").value=code;return}
@@ -623,6 +808,7 @@ function openRoom(r){
   $("#home").hidden=true;$("#room").hidden=false;
   paint(true);renderReply();renderNbar();
   if(matchMedia("(pointer:fine)").matches)$("#msg").focus();
+  setTimeout(sendRead,800);
 }
 function leaveRoom(quiet){
   const r=R;if(!r)return;
@@ -645,6 +831,7 @@ function showHome(){
   $("#nm").value=me.name;renderCols();renderRooms();
 }
 function renderRooms(){
+  $("#roomsbox").hidden=true;$("#rooms").innerHTML="";return;
   const list=ls.get("mg.rooms",[]),un=ls.get("mg.un",{});
   $("#roomsbox").hidden=!list.length;
   $("#rooms").innerHTML=list.map(x=>`<button data-a="room" data-code="${esc(x.code)}"><span class="rl"><i class="av" style="background:var(--c${[...x.code].reduce((a,c)=>a+c.charCodeAt(0),0)%NC})">${esc((x.name||"R").trim().charAt(0).toUpperCase())}</i><span>${esc(x.name)}</span>${un[x.code]?`<i class="badge">${un[x.code]>99?"99+":un[x.code]}</i>`:""}</span><small>code ${esc(x.code)}</small></button>`).join("");
@@ -666,27 +853,34 @@ function renderLog(stick){
   const r=R;if(!r)return;
   const log=$("#log"),list=shown(r),byId=new Map(list.map(m=>[m.id,m]));
   if(!list.length){log.innerHTML=`<div class="empty">${TH(`No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.`,`مفيش رسايل لسه.<br>ابعت الكود <b dir="ltr">${esc(r.code)}</b> لصحابك عشان يدخلوا.`)}<br><button class="btn wide" data-a="inv">Invite people</button><p class="hint">${TH("Tip: to reply, swipe a note to the right, hover it and click ↩ Reply, or tap it.","عشان ترد: اسحب الرسالة ناحية اليمين، أو قف عليها بالماوس ودوس ↩ Reply، أو دوس عليها.")}</p></div>`;return}
-  const nearB=stick||atBottom(),mention=new RegExp("@"+me.name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\b","i");
-  let h="",prev=null,day="";const banned=isBanned();
+  const nearB=stick||atBottom();
+  let h="",prev=null,day="";const banned=isBanned(),lm=lastMine(r);
   for(const m of list){
     const d=new Date(m.ts).toDateString();
     if(d!==day){day=d;h+=`<div class="day">${dayLabel(m.ts)}</div>`;prev=null}
     const mine=m.u===me.id,grp=prev&&prev.u===m.u&&m.ts-prev.ts<180000&&!m.r&&!m.g&&!prev.g;
     const hd=grp?"":`<div class="hd"><i class="av ma" style="background:var(--c${m.c})">${esc((mine?me.name:m.n).charAt(0).toUpperCase()||"?")}</i><b style="color:var(--c${m.c})">${esc(mine?"You":m.n)}</b>${m.ok?'<span class="adm">admin</span>':""}<time>${tm(m.ts)}</time></div>`;
     let body="";
-    if(m.r){const q=byId.get(m.r);body+=`<div class="rq" data-a="jump" data-id="${m.r}">↪ ${q?esc(q.u===me.id?"You":q.n)+": "+esc(q.x||"game invite"):"a deleted note"}</div>`}
+    if(m.r){const q=byId.get(m.r);body+=`<div class="rq" data-a="jump" data-id="${m.r}">↪ ${q?esc(q.u===me.id?"You":q.n)+": "+esc(qtx(q)):"a deleted note"}</div>`}
     if(m.g){
       const md=MODES[m.g.m],old=Date.now()-m.ts>45*60000;
       body+=`<div class="inv"><span class="e">${md.e}</span><div><b>${mine?"You":esc(m.n)} ${mine?"want":"wants"} to play ${esc(md.n)}</b><small>${old?"This invite is old":"Crashpot · tap to jump in"}</small></div>${old?"":`<button class="btn pri" data-a="play" data-id="${m.id}">${mine?"Open":"Join"}</button>`}</div>`;
     }
+    if(m.i)body+=`<img class="im" src="${m.i}" data-a="img" data-id="${m.id}" alt="Picture">`;
+    else if(m.ip)body+=`<div class="hint">📷 Picture (not stored on this device)</div>`;
     if(m.x)body+=`<div class="tx">${esc(m.x)}</div>`;
-    const toMe=!mine&&((me.name&&mention.test(m.x))||(m.r&&byId.get(m.r)&&byId.get(m.r).u===me.id));
-    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${toMe?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div>${banned?"":`<button class="rb" data-a="rq" data-id="${m.id}" title="Reply">↩ Reply</button>`}${mine&&m.dh?`<button class="rb db" data-a="mydel" data-id="${m.id}" title="Delete">🗑 Delete</button>`:""}</div>`;
+    const toMe=!mine&&(mentionsMe(m)||(m.r&&byId.get(m.r)&&byId.get(m.r).u===me.id));
+    h+=`<div class="msg${mine?" me":""}${grp?"":" top"}${toMe?" mention":""}" data-id="${m.id}">${hd}<div class="body">${body}</div>${lm&&lm.id===m.id?`<div class="seen">${esc(seenText(r,m))}</div>`:""}${banned?"":`<button class="rb" data-a="rq" data-id="${m.id}" title="Reply">↩ Reply</button>`}${mine&&m.dh?`<button class="rb db" data-a="mydel" data-id="${m.id}" title="Delete">🗑 Delete</button>`:""}</div>`;
     prev=m;
   }
   log.innerHTML=h;
-  if(nearB){log.scrollTop=log.scrollHeight;$("#newchip").hidden=true}
+  if(nearB){
+    log.scrollTop=log.scrollHeight;$("#newchip").hidden=true;
+    const t0=Date.now();
+    log.querySelectorAll("img.im").forEach(im=>{if(!im.complete)im.addEventListener("load",()=>{if(Date.now()-t0<2500)log.scrollTop=log.scrollHeight})});
+  }
 }
+const qtx=q=>q.x||(q.i||q.ip?"picture":"game invite");
 function renderTyping(){
   if(!R)return;
   const now=Date.now(),names=[];
@@ -701,7 +895,7 @@ function renderInput(){
 function renderReply(){
   const q=replyTo&&R&&R.msgs.get(replyTo);
   $("#replying").hidden=!q;
-  if(q)$("#replytx").textContent="↩ Replying to "+(q.u===me.id?"yourself":q.n)+": "+(q.x||"game invite").slice(0,60);
+  if(q)$("#replytx").textContent="↩ Replying to "+(q.u===me.id?"yourself":q.n)+": "+qtx(q).slice(0,60);
 }
 function startReply(id){
   const m=R&&R.msgs.get(id);if(!m||isBanned())return;
@@ -718,14 +912,14 @@ function autosize(){const t=$("#msg");t.style.height="auto";t.style.height=Math.
 
 async function sendMsg(extra){
   const r=R;if(!r||isBanned())return;
-  const t=$("#msg"),x=extra?"":cleanText(t.value);
-  if(!x&&!extra)return;
+  const t=$("#msg"),x=extra?"":cleanText(t.value),img=extra?null:pendImg;
+  if(!x&&!extra&&!img)return;
   const now=Date.now();sendTimes=sendTimes.filter(s=>now-s<6000);
   if(sendTimes.length>=6){toast("Slow down a little");return}
   sendTimes.push(now);
-  const id=rid(12),m={id,u:me.id,n:me.name,c:me.col,x,ts:now,r:extra?null:replyTo,g:extra||null,sg:null,dh:await h32(await delKey(id))};
+  const id=rid(12),m={id,u:me.id,n:me.name,c:me.col,x,ts:now,r:extra?null:replyTo,g:extra||null,i:img,mn:extra?[]:mentionIds(r,x),sg:null,dh:await h32(await delKey(id))};
   if(r.signKey)m.sg=b64(await crypto.subtle.sign(SG,r.signKey,enc.encode(sigStr(m))));
-  if(!extra){t.value="";autosize();replyTo=null;renderReply()}
+  if(!extra){t.value="";autosize();replyTo=null;renderReply();pendImg=null;renderPend()}
   pub(r,{t:"m",...m});
   await addMsgs(r,[normMsg(m)],false);
   paint(true);pushLast(r);ntfyPing(r);
@@ -733,7 +927,7 @@ async function sendMsg(extra){
 async function delMine(id){
   const r=R,m=r&&r.msgs.get(id);if(!m||m.u!==me.id||!m.dh||m.gone)return;
   const dk=await delKey(id);if(await h32(dk)!==m.dh){toast("Only the device that sent it can delete it");return}
-  const t={...strip(m),x:"",g:null,dk};
+  const t={...strip(m),x:"",g:null,i:null,ip:0,dk};
   pub(r,{t:"m",...t});
   await addMsgs(r,[normMsg(t)],false);
   if(replyTo===id){replyTo=null;renderReply()}
@@ -743,6 +937,35 @@ function hideHere(id){
   const r=R;if(!r)return;r.hid.add(id);ls.set("mg.hid."+r.tid,[...r.hid].slice(-400));
   if(replyTo===id){replyTo=null;renderReply()}
   paint();toast("Deleted for you");
+}
+function renderPend(){
+  $("#pend").hidden=!pendImg;
+  if(pendImg)$("#pendimg").src=pendImg;
+}
+async function shrink(file){
+  let src;
+  try{src=await createImageBitmap(file)}catch(e){
+    src=await new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=no;im.src=URL.createObjectURL(file)});
+  }
+  const w0=src.width,h0=src.height;
+  let max=900,q=.72;
+  for(let n=0;n<9;n++){
+    const k=Math.min(1,max/Math.max(w0,h0)),c=document.createElement("canvas");
+    c.width=Math.max(1,Math.round(w0*k));c.height=Math.max(1,Math.round(h0*k));
+    const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(src,0,0,c.width,c.height);
+    const u=c.toDataURL("image/jpeg",q);
+    if(u.length<=IMG_MAX)return u;
+    max=Math.round(max*.8);q=Math.max(.45,q-.05);
+  }
+  return null;
+}
+async function pickImage(file){
+  if(!file||!/^image\//.test(file.type)||!R||isBanned())return;
+  toast("Getting the picture ready…");
+  let u=null;try{u=await shrink(file)}catch(e){}
+  if(!u){toast("Couldn't use that picture");return}
+  pendImg=u;renderPend();toast("Picture ready. Press Send.");
+  if(matchMedia("(pointer:fine)").matches)$("#msg").focus();
 }
 function typing(){const r=R,now=Date.now();if(!r||now-lastTyping<3000||!$("#msg").value.trim())return;lastTyping=now;pub(r,{t:"ty",u:me.id,n:me.name})}
 
@@ -804,7 +1027,7 @@ async function showN(title,opt){
 function sysNotify(m,other){
   const room=other?other.name:(R&&R.meta.name)||"Room",code=other?other.code:R&&R.code;
   const title=S.peek?room:S.title;
-  const body=S.peek?m.n+": "+(m.g?"wants to play "+MODES[m.g.m].n:m.x):unseen>1?unseen+" new notes":"1 new note";
+  const body=S.peek?m.n+": "+(m.g?"wants to play "+MODES[m.g.m].n:m.x||"sent a picture"):unseen>1?unseen+" new notes":"1 new note";
   return showN(title,{body,tag:"mg",renotify:true,icon:noteIcon(),data:{code:code||null}});
 }
 function openFromNotif(code){
@@ -872,6 +1095,7 @@ function hide(on){
 }
 let dkTaps=[];
 $("#dkname").addEventListener("click",()=>{const n=Date.now();dkTaps=dkTaps.filter(t=>n-t<900);dkTaps.push(n);if(dkTaps.length>=3){dkTaps=[];hide(false)}});
+$("#dksaved").textContent="Saved to Drive";
 $("#dkdate").textContent=new Date().toLocaleDateString([],{weekday:"long",month:"long",day:"numeric",year:"numeric"});
 
 function openSheet(kind,arg){sheetKind=kind;sheetArg=arg;$("#sheet").hidden=false;renderSheet();$("#card").scrollTop=0}
@@ -913,6 +1137,11 @@ function drawSheet(){
     return;
   }
   if(!r||!sheetKind){closeSheet();return}
+  if(sheetKind==="img"){
+    const m=r.msgs.get(sheetArg);if(!m||!m.i){closeSheet();return}
+    c.innerHTML=`<h2>${esc(m.u===me.id?"You":m.n)}</h2><img src="${m.i}" alt="Picture" style="width:100%;border-radius:10px;display:block"><a class="btn wide" href="${m.i}" download="picture.jpg">Save picture</a><button class="btn wide" data-a="close">Close</button>`;
+    return;
+  }
   if(sheetKind==="ntfy"){
     const on=ntOn(r);
     c.innerHTML=`<h2>When Chat is closed</h2>
@@ -950,7 +1179,7 @@ function drawSheet(){
   }else if(sheetKind==="people"){
     const ppl=[[me.id,{n:me.name,c:me.col}],...r.online];
     const bans=Object.entries(r.meta.bans);
-    c.innerHTML=`<h2>Here now</h2>${ppl.map(([u,p])=>`<div class="ppl"><i class="dot" style="background:var(--c${p.c})"></i><span>${esc(p.n)}${u===me.id?" (you)":""}</span>${adm&&u!==me.id?`<button class="btn bad" data-a="ban" data-u="${u}" data-n="${esc(p.n)}">Remove</button>`:""}</div>`).join("")}
+    c.innerHTML=`<h2>Here now</h2>${ppl.map(([u,p])=>`<div class="ppl"><i class="dot" style="background:var(--c${p.c})"></i><span>${esc(p.n)}${u===me.id?" (you)":""}</span>${u!==me.id?`<button class="btn pg" data-a="pingu" data-u="${u}" data-n="${esc(p.n)}">🔔 Ping</button>`:""}${adm&&u!==me.id?`<button class="btn bad" data-a="ban" data-u="${u}" data-n="${esc(p.n)}">Remove</button>`:""}</div>`).join("")}
     ${adm&&bans.length?`<h3>Removed</h3>${bans.map(([u,n])=>`<div class="ppl"><span>${esc(n)}</span><button class="btn" data-a="unban" data-u="${u}">Let back in</button></div>`).join("")}`:""}
     <button class="btn wide" data-a="inv">Invite people</button><button class="btn wide" data-a="close">Close</button>`;
   }else if(sheetKind==="msg"){
@@ -973,6 +1202,16 @@ function drawSheet(){
     <h3>Sounds</h3>
     ${tg("sound","Sound",T("A soft tick when a note comes in","صوت خفيف لما توصل رسالة"))}
     ${tg("buzz","Vibrate",T("On phones that support it","في الموبايلات اللي بتدعمه"))}
+    <h3>Privacy</h3>
+    ${tg("rr","Send read receipts",T("Lets people see that you read their notes","بيخلي الناس تشوف إنك قريت رسايلهم"))}
+    ${PRIV?"":`<h3>Panic delete</h3>
+    <p class="hint">${TH("Type your panic word into any box (message, name or room code) and everything on this device is wiped at once: rooms, history, admin keys. The screen goes to the fake study page. To get it back, paste your restore code into the Join box on the home screen.","اكتب كلمة الطوارئ في أي خانة (الرسالة أو الاسم أو الكود) وكل حاجة على الجهاز بتتمسح فورًا، وبتظهر صفحة المذاكرة المزيفة. عشان ترجّعها الزق كود الاسترجاع في خانة Join في الشاشة الرئيسية.")}</p>
+    <p class="hint st">${pwHash?"✅ Panic word is set":"⚪ No panic word yet"}</p>
+    <input id="spw" class="in" maxlength="30" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${pwHash?"New panic word (leave empty to remove)":"Panic word (3 or more letters)"}">
+    <button class="btn wide" data-a="setpw">Save panic word</button>
+    <button class="btn wide" data-a="copyrestore">Copy restore code</button>
+    <p class="hint">${TH("Save the restore code somewhere safe and private (it includes your admin keys). Make a new one after joining new rooms. Without it, a wiped device can't get its rooms back.","احفظ كود الاسترجاع في مكان آمن وسري (فيه مفاتيح الأدمن). اعمل واحد جديد بعد ما تدخل أوض جديدة. من غيره الجهاز اللي اتمسح مبيرجعش أوضه.")}</p>
+    <button class="btn wide bad" data-a="panicnow">Delete everything now</button>`}
     <h3>Hiding</h3>
     <label class="tg"><span>Look</span><select data-s="theme"><option value="doc" ${S.theme==="doc"?"selected":""}>Plain document</option><option value="dark" ${S.theme==="dark"?"selected":""}>Dark chat</option></select></label>
     <label class="tg"><span>Tab name</span><select data-s="title">${TITLES.map(t=>`<option ${S.title===t?"selected":""}>${esc(t)}</option>`).join("")}</select></label>
@@ -1045,6 +1284,19 @@ document.addEventListener("click",e=>{
   else if(a==="testn")testNotif();
   else if(a==="lang"){S.ar=!S.ar;saveS();renderHomeText();renderNbar();if(R)paint();if(sheetKind)renderSheet()}
   else if(a==="ntfy")openSheet("ntfy");
+  else if(a==="setpw"){
+    const v=$("#spw").value.trim().toLowerCase();
+    if(!v){pwHash=null;ls.del("mg.panic");toast("Panic word removed")}
+    else if(v.length<3)toast("Use at least 3 letters");
+    else panicHash(v).then(h=>{pwHash=h;ls.set("mg.panic",h);toast("Panic word saved");renderSheet()});
+    if(!v)renderSheet();
+  }
+  else if(a==="copyrestore")copy(exportCode(),"Restore code copied. Keep it private.");
+  else if(a==="panicnow"){if(confirm("Delete all rooms, history and keys from this device?"))panic()}
+  else if(a==="img")openSheet("img",b.dataset.id);
+  else if(a==="attach")$("#file").click();
+  else if(a==="unimg"){pendImg=null;renderPend()}
+  else if(a==="pingu")sendPing(b.dataset.u,b.dataset.n);
   else if(a==="copynt"){if(R)copy(R.nt,"Topic copied")}
   else if(a==="testnt"){if(R){ntfySend(R,"Test: pings from this room reach you");toast(T("Test ping sent. It should show up in ntfy within a few seconds.","اتبعت إشعار تجربة. المفروض يوصل في ntfy خلال ثواني."),5000)}}
 });
@@ -1062,10 +1314,26 @@ document.addEventListener("change",async e=>{
   else S[k]=e.target.value;
   saveS();applyTheme();
 });
+for(const id of["#msg","#jc","#nm","#nc"])$(id).addEventListener("input",e=>{
+  const v=e.target.value;
+  if(id==="#jc"&&v.trim().startsWith(PANIC_PFX)){tryRestore(v);return}
+  checkPanic(v);
+});
 $("#nm").addEventListener("input",e=>{const n=clean(e.target.value,16);if(n){me.name=n;saveMe();hnote("")}});
 $("#jc").addEventListener("keydown",e=>{if(e.key==="Enter")enterRoom(e.target.value,pendingAdm)});
 $("#nc").addEventListener("keydown",e=>{if(e.key==="Enter")createRoom()});
 $("#nm").addEventListener("keydown",e=>{if(e.key==="Enter"){if($("#jc").value.trim())enterRoom($("#jc").value,pendingAdm);else $("#jc").focus()}});
+$("#file").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];e.target.value="";pickImage(f)});
+document.addEventListener("paste",e=>{
+  if(!R||$("#room").hidden||decoyOn||sheetKind)return;
+  const items=e.clipboardData&&e.clipboardData.items;if(!items)return;
+  for(const it of items)if(it.kind==="file"&&it.type.startsWith("image/")){e.preventDefault();pickImage(it.getAsFile());return}
+});
+$("#room").addEventListener("dragover",e=>{if(e.dataTransfer&&[...e.dataTransfer.types].includes("Files"))e.preventDefault()});
+$("#room").addEventListener("drop",e=>{
+  const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+  if(f&&/^image\//.test(f.type)){e.preventDefault();pickImage(f)}
+});
 $("#send").addEventListener("submit",e=>{e.preventDefault();sendMsg()});
 $("#msg").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();sendMsg()}});
 $("#msg").addEventListener("input",()=>{autosize();typing()});
@@ -1088,9 +1356,9 @@ $("#log").addEventListener("touchend",()=>{
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){e.preventDefault();hide(!decoyOn)}});
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden){if(S.autohide&&R)hide(true);if(R)sendP(R,true)}
-  else{if(R)sendP(R,true);if(!decoyOn)clearNotifs();renderNbar();if(!$("#home").hidden)renderRooms()}
+  else{if(R)sendP(R,true);sendRead();if(!decoyOn)clearNotifs();renderNbar();if(!$("#home").hidden)renderRooms()}
 });
-window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs()});
+window.addEventListener("focus",()=>{if(!decoyOn)clearNotifs();sendRead()});
 if(EMBED)window.addEventListener("message",e=>{
   if(e.source!==parent||e.origin!==location.origin)return;
   const d=e.data&&typeof e.data==="object"?e.data:{};
@@ -1129,8 +1397,10 @@ setInterval(()=>{if(R){renderHead();renderTyping();if(sheetKind==="people")rende
   if(j)try{history.replaceState(null,"",baseUrl()+location.search)}catch(e){}
   let admJwk=null;if(adm)try{admJwk=JSON.parse(atob(adm.replace(/-/g,"+").replace(/_/g,"/")))}catch(e){}
   showHome();
+  let pd=false;try{pd=sessionStorage.getItem("mg.pd")==="1";sessionStorage.removeItem("mg.pd")}catch(e){}
+  if(pd)hide(true);
   if(j)$("#jc").value=normCode(j)||j;
-  const target=j||ls.get("mg.last",null);
+  const target=j;
   if(target&&me.name)await enterRoom(target,admJwk);
   else if(j){hnote("Pick a name, then tap Join.");$("#nm").focus();pendingAdm=admJwk}
   if(await loadMqtt()){connect();syncWatch()}else if(R)renderHead();
