@@ -276,7 +276,7 @@ body.dark .msg.me .seen{text-align:right}
     <div class="wrap" style="position:relative">
       <div class="bar">
         <button class="tb back" data-a="back" aria-label="Back">‹</button>
-        <div class="ttl" data-a="inv" title="Show the code and invite people"><b id="rname">Room</b><small id="rsub">connecting…</small></div>
+        <div class="ttl" data-a="inv" title="Invite people"><b id="rname">Room</b><small id="rsub">connecting…</small></div>
         <button class="tb" data-a="game" title="Invite everyone to a game">Play</button>
         <button class="tb" data-a="people" title="Who's here">People</button>
         <button class="tb" data-a="set" title="Settings and notifications">Settings</button>
@@ -850,13 +850,13 @@ function renderHead(){
   const now=Date.now();
   for(const[u,p]of R.online)if(now-p.at>70000)R.online.delete(u);
   $("#rname").textContent=R.meta.name||"Room";
-  $("#rsub").textContent=!up?(!clients.length?"offline, check your internet":everUp?"reconnecting…":"connecting…"):`code ${R.code} · ${R.online.size+1} here`;
+  $("#rsub").textContent=!up?(!clients.length?"offline, check your internet":everUp?"reconnecting…":"connecting…"):`${R.online.size+1} here`;
   const pin=$("#pin");pin.hidden=!R.meta.pin;pin.textContent=R.meta.pin?"📌 "+R.meta.pin:"";
 }
 function renderLog(stick){
   const r=R;if(!r)return;
   const log=$("#log"),list=shown(r),byId=new Map(list.map(m=>[m.id,m]));
-  if(!list.length){log.innerHTML=`<div class="empty">${TH(`No notes yet.<br>Share the code <b>${esc(r.code)}</b> so people can join.`,`مفيش رسايل لسه.<br>ابعت الكود <b dir="ltr">${esc(r.code)}</b> لصحابك عشان يدخلوا.`)}<br><button class="btn wide" data-a="inv">Invite people</button><p class="hint">${TH("Tip: to reply, swipe a note to the right, hover it and click ↩ Reply, or tap it.","عشان ترد: اسحب الرسالة ناحية اليمين، أو قف عليها بالماوس ودوس ↩ Reply، أو دوس عليها.")}</p></div>`;return}
+  if(!list.length){log.innerHTML=`<div class="empty">${TH(`No notes yet.<br>Invite people so they can join.`,`مفيش رسايل لسه.<br>ادعي صحابك عشان يدخلوا.`)}<br><button class="btn wide" data-a="inv">Invite people</button><p class="hint">${TH("Tip: to reply, swipe a note to the right, hover it and click ↩ Reply, or tap it.","عشان ترد: اسحب الرسالة ناحية اليمين، أو قف عليها بالماوس ودوس ↩ Reply، أو دوس عليها.")}</p></div>`;return}
   const nearB=stick||atBottom();
   let h="",prev=null,day="";const banned=isBanned(),lm=lastMine(r);
   for(const m of list){
@@ -1180,7 +1180,7 @@ function drawSheet(){
   if(sheetKind==="game"){
     c.innerHTML=`<h2>Wanna play?</h2>${lobby?`<button class="btn pri wide" data-a="mylobby">Invite them to my lobby (code ${esc(lobby.code.toUpperCase())})</button><p class="hint">${TH("Or start a new game:","أو ابدأ لعبة جديدة:")}</p>`:`<p class="hint">${EMBED?TH("Pick a game. Everyone here gets an invite, and you jump into the lobby.","اختار لعبة. كل اللي في الأوضة هيوصلهم دعوة، وانت هتدخل اللوبي على طول."):TH("Pick a game. Everyone here gets an invite, and the game opens in a new tab.","اختار لعبة. كل اللي في الأوضة هيوصلهم دعوة، واللعبة هتفتح في تاب جديد.")}</p>`}<div class="modes">${Object.entries(MODES).map(([k,v])=>`<button data-a="mode" data-m="${k}"><span>${v.e}</span>${esc(v.n)}</button>`).join("")}</div><button class="btn wide" data-a="close">Cancel</button>`;
   }else if(sheetKind==="invite"){
-    c.innerHTML=`<h2>Invite people</h2><p class="hint">${TH("Anyone who knows this code can get in, so pick something only your friends would guess.","أي حد معاه الكود ده يقدر يدخل، فابعته لصحابك بس.")}</p><div class="code">${esc(r.code)}</div><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
+    c.innerHTML=`<h2>Invite people</h2><p class="hint">${TH("Anyone who knows this code can get in, so pick something only your friends would guess.","أي حد معاه الكود ده يقدر يدخل، فابعته لصحابك بس.")}</p><div class="code" id="codebox">••••</div><button class="btn wide" data-a="showcode">Show code</button><button class="btn pri wide" data-a="copyinv">Copy invite link</button>${navigator.share?'<button class="btn wide" data-a="share">Share…</button>':""}<button class="btn wide" data-a="close">Done</button>`;
   }else if(sheetKind==="people"){
     const ppl=[[me.id,{n:me.name,c:me.col}],...r.online];
     const bans=Object.entries(r.meta.bans);
@@ -1194,7 +1194,7 @@ function drawSheet(){
     const notifOk="Notification" in window;
     const tg=(k,t,s)=>`<label class="tg"><span>${t}${s?`<small${S.ar?' dir="rtl"':""}>${s}</small>`:""}</span><input type="checkbox" data-s="${k}" ${S[k]?"checked":""}></label>`;
     c.innerHTML=`<h2>Settings</h2>
-    <h3>Room</h3><button class="btn wide" data-a="inv">Invite people / show code</button>
+    <h3>Room</h3><button class="btn wide" data-a="inv">Invite people</button>
     <h3>You</h3><input id="snm" class="in" maxlength="16" value="${esc(me.name)}" placeholder="Your name"><div class="cols" id="scols">${[...Array(NC).keys()].map(i=>`<button data-a="col" data-i="${i}" class="${i===me.col?"on":""}" style="background:var(--c${i})" aria-label="Color ${i+1}"></button>`).join("")}</div>
     <h3>Notifications</h3>
     <p class="hint st">${notifStatus()}</p>
@@ -1289,6 +1289,7 @@ document.addEventListener("click",e=>{
   else if(a==="testn")testNotif();
   else if(a==="lang"){S.ar=!S.ar;saveS();renderHomeText();renderNbar();if(R)paint();if(sheetKind)renderSheet()}
   else if(a==="ntfy")openSheet("ntfy");
+  else if(a==="showcode"){const e=$("#codebox");if(e&&R){const on=e.textContent!=="••••";e.textContent=on?"••••":R.code;b.textContent=on?"Show code":"Hide code"}}
   else if(a==="setpw"){
     const v=$("#spw").value.trim().toLowerCase();
     if(!v){pwHash=null;ls.del("mg.panic");toast("Panic word removed")}

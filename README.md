@@ -6,7 +6,7 @@ Quiet notes with your class. A tiny chat room that looks like a plain document.
 
 1. Open the page and type your name.
 2. Got a code from a friend? Type it under **Join a room**. Or start your own: type a code (like `pizza` or `42`) or leave it empty for a random 3-digit one, then tap **Start**. You're the admin.
-3. Tap the room name at the top any time to see the code and copy an invite link.
+3. Tap the room name at the top any time to copy an invite link. The code stays hidden in the room unless you tap Show code.
 4. Not sure? Tap **How does this work?** on the home screen or in Settings.
 
 ## Features
