@@ -707,7 +707,7 @@ function ntfyPing(r){
   r.lastNt=now;ntfySend(r);
 }
 function askHistory(r){const s=sorted(r);pub(r,{t:"h?",rq:rid(8),since:s.length?s[s.length-1].ts:0,u:me.id})}
-function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:thin([...tombs(r).slice(-60),...shown(r).slice(-40)],0),...(r.metaRaw||{})},"/last",true),delay??1500)}
+function pushLast(r,delay){clearTimeout(r.lastTimer);r.lastTimer=setTimeout(()=>pub(r,{t:"h",rq:"last",list:thin([...tombs(r).slice(-60),...shown(r).slice(-40)],130000),...(r.metaRaw||{})},"/last",true),delay??1500)}
 
 function remember(r){
   const list=ls.get("mg.rooms",[]).filter(x=>x.code!==r.code);
