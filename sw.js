@@ -8,3 +8,34 @@ self.addEventListener("notificationclick",e=>{
     return self.clients.openWindow(code?"./#j="+encodeURIComponent(code):"./");
   }));
 });
+
+// Keep the newest image in the retained MQTT history snapshot. When the
+// original sender is offline, that snapshot is how a returning friend catches up.
+// Also allow a placeholder already saved on a friend's device to be filled in
+// when the sender republishes the original message with its image attached.
+self.addEventListener("fetch",e=>{
+  const request=e.request,scope=new URL(self.registration.scope),url=new URL(request.url);
+  if(request.method!=="GET"||request.mode!=="navigate"||url.origin!==scope.origin||
+     (url.pathname!==scope.pathname&&url.pathname!==scope.pathname+"index.html"))return;
+  e.respondWith((async()=>{
+    const response=await fetch(request);
+    if(!response.ok||!(response.headers.get("content-type")||"").includes("text/html"))return response;
+    let html=await response.text(),changed=false;
+    const snapshot="thin([...tombs(r).slice(-60),...shown(r).slice(-40)],0)";
+    if(html.includes(snapshot)){
+      html=html.replace(snapshot,"thin([...tombs(r).slice(-60),...shown(r).slice(-40)],100000)");
+      changed=true;
+    }
+    const duplicate='if(old){if(m.gone&&!old.gone&&old.dh===m.dh){old.gone=true;old.dk=m.dk;old.x="";old.g=null;old.i=null;old.ip=0;wiped=true}continue}';
+    const upgrade='if(old){if(m.gone&&!old.gone&&old.dh===m.dh){old.gone=true;old.dk=m.dk;old.x="";old.g=null;old.i=null;old.ip=0;wiped=true}else if(old.ip&&m.i&&old.u===m.u&&old.ts===m.ts&&old.x===m.x){old.i=m.i;old.ip=0;wiped=true}continue}';
+    if(html.includes(duplicate)){
+      html=html.replace(duplicate,upgrade);
+      changed=true;
+    }
+    if(!changed)return response;
+    const headers=new Headers(response.headers);
+    headers.delete("content-length");
+    headers.delete("content-encoding");
+    return new Response(html,{status:response.status,statusText:response.statusText,headers});
+  })());
+});
