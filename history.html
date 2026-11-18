@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Chat history</title>
+<style>
+:root{color-scheme:light dark;font:16px system-ui,sans-serif;--bg:#f1f3f4;--card:#fff;--ink:#202124;--sub:#5f6368;--line:#ddd;--accent:#1a62c9}
+@media(prefers-color-scheme:dark){:root{--bg:#101216;--card:#191c22;--ink:#eee;--sub:#aaa;--line:#343840;--accent:#8ab4f8}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}main{max-width:760px;min-height:100vh;margin:auto;padding:24px 16px;background:var(--card)}h1{font-size:24px;margin:0 0 6px}.note,.muted{color:var(--sub);font-size:14px}.gate{display:flex;gap:8px;margin:20px 0}.gate input{flex:1;min-width:0}input,button{font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}button{cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:white}.rooms{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}.rooms button.selected{outline:2px solid var(--accent)}.msg{padding:10px 2px;border-bottom:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}.meta{font-size:12px;color:var(--sub);margin-bottom:3px}.text{line-height:1.45}.empty{padding:22px 0;color:var(--sub)}
+</style>
+</head>
+<body><main>
+<h1>Chat history</h1>
+<p class="note">View chat history saved on this browser. Enter your personal code to continue.</p>
+<form id="gate" class="gate"><input id="code" type="password" inputmode="numeric" autocomplete="off" placeholder="Secret code" aria-label="Secret code"><button class="primary">Unlock</button></form>
+<p id="status" class="note" aria-live="polite"></p>
+<section id="viewer" hidden><p class="note">This shows only messages stored in this browser. It cannot retrieve history that was never saved here or recover history from other people's devices.</p><div id="rooms" class="rooms"></div><h2 id="roomTitle"></h2><div id="messages"></div></section>
+<script>
+const ACCESS_CODE="102";
+const $=s=>document.querySelector(s);
+const safeJSON=(key,fallback)=>{try{return JSON.parse(localStorage.getItem(key))??fallback}catch{return fallback}};
+const escName=s=>String(s||"Room");
+const hex=b=>Array.from(new Uint8Array(b),v=>v.toString(16).padStart(2,"0")).join("");
+let roomRecords=[],selected=null;
+function text(el,value){el.textContent=value}
+function showMessages(room){
+  selected=room;
+  document.querySelectorAll(".rooms button").forEach(b=>b.classList.toggle("selected",b.dataset.tid===room.tid));
+  text($("#roomTitle"),room.name);
+  const box=$("#messages");box.replaceChildren();
+  const history=safeJSON("mg.h."+room.tid,[]);
+  const hidden=new Set(safeJSON("mg.hid."+room.tid,[]));
+  const metaRecord=safeJSON("mg.m."+room.tid,null);
+  let meta={};try{if(metaRecord&&typeof metaRecord.ms==="string")meta=JSON.parse(metaRecord.ms)}catch{}
+  const deleted=new Set(Array.isArray(meta.del)?meta.del:[]);
+  const visible=(Array.isArray(history)?history:[]).filter(m=>m&&typeof m==="object"&&!m.dk&&!hidden.has(m.id)&&!deleted.has(m.id)&&(+m.ts||0)>=(+meta.clr||0)&&!(meta.bans&&meta.bans[m.u]));
+  if(!visible.length){const p=document.createElement("p");p.className="empty";text(p,"No saved messages in this room.");box.append(p);return}
+  for(const m of visible){
+    const row=document.createElement("article");row.className="msg";
+    const head=document.createElement("div");head.className="meta";
+    const date=Number(m.ts)?new Date(+m.ts).toLocaleString():"Unknown date";
+    const sender=m.u===safeJSON("mg.me",{}).id?"You":escName(m.n||"Someone");
+    text(head,sender+" · "+date);row.append(head);
+    const body=document.createElement("div");body.className="text";
+    const pieces=[];
+    if(m.x)pieces.push(String(m.x));
+    if(m.g)pieces.push("🎮 Game invite");
+    if(m.i||m.ip)pieces.push("📷 Picture");
+    text(body,pieces.join("\n")||"(message content unavailable)");row.append(body);box.append(row);
+  }
+}
+async function unlock(){
+  if($("#code").value.trim()!==ACCESS_CODE){text($("#status"),"That code didn't work.");return}
+  $("#code").value="";$("#status").textContent="";$("#viewer").hidden=false;
+  const rooms=safeJSON("mg.rooms",[]),byTid=new Map();
+  for(const r of Array.isArray(rooms)?rooms:[]){
+    if(!r||typeof r.code!=="string")continue;
+    try{
+      const tid=hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode("chat-topic:"+r.code))).slice(0,24);
+      if(!localStorage.getItem("mg.h."+tid))continue;
+      const stored=safeJSON("mg.m."+tid,null);let meta={};
+      try{if(stored&&typeof stored.ms==="string")meta=JSON.parse(stored.ms)}catch{}
+      byTid.set(tid,{tid,code:r.code,name:String(meta.name||r.name||"Room")});
+    }catch{}
+  }
+  roomRecords=[...byTid.values()];
+  const nav=$("#rooms");nav.replaceChildren();$("#messages").replaceChildren();text($("#roomTitle"),"");
+  if(!roomRecords.length){text($("#status"),"No saved chat history was found for your recent rooms on this browser.");return}
+  for(const room of roomRecords){const b=document.createElement("button");b.type="button";b.dataset.tid=room.tid;text(b,room.name);b.addEventListener("click",()=>showMessages(room));nav.append(b)}
+  showMessages(roomRecords[0]);
+}
+$("#gate").addEventListener("submit",e=>{e.preventDefault();unlock()});
+</script>
+</main></body>
+</html>
